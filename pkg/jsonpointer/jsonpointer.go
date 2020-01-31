@@ -114,7 +114,7 @@ func (t T) String() string {
 
 // MarshalJSON implements Marshaler.
 func (t T) MarshalJSON() ([]byte, error) {
-	return json.Marshal(t.String())
+	return json.Marshal(t.Fragment())
 }
 
 // UnmarshalJSON implements Unmarshaler.
