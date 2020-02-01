@@ -3,7 +3,7 @@
 - [x] Flag
 - [ ] Basic
 - [ ] Detailed
-- [ ] Verbose
+- [x] Verbose
 
 # Keyword Support
 

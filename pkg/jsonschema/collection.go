@@ -35,6 +35,9 @@ func NewCollection() *Collection {
 // base specifies the root schema $id if $id is missing.
 func (c *Collection) AddSchema(r io.Reader, base string) (err error) {
 	plainSchema, err := DecodePlainJSON(r)
+	if err != nil {
+		return
+	}
 	schema := WrapJSON(plainSchema)
 
 	baseURL, err := url.Parse(base)
@@ -124,6 +127,7 @@ func (c *Collection) buildIndex(schema JSON, currentBaseURL url.URL, ptr jsonpoi
 			}
 
 			ptr = nil
+
 		}
 
 		schema.BaseURI = currentBaseURL
@@ -196,7 +200,6 @@ func (c *Collection) Apply(u string, r io.Reader) (node *Node, err error) {
 		Valid:                   true,
 		Schema:                  *schema,
 		Instance:                instance,
-		KeywordLocation:         location,
 		AbsoluteKeywordLocation: location,
 	}
 

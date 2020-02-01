@@ -2,6 +2,7 @@ package jsonschema
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 
 	"github.com/iawaknahc/jsonschema/pkg/jsonpointer"
@@ -13,9 +14,9 @@ type Location struct {
 }
 
 func (l Location) String() string {
-	u := l.BaseURI
-	u.Fragment = l.JSONPointer.String()
-	return u.String()
+	l.BaseURI.Fragment = ""
+	// Write empty fragment
+	return fmt.Sprintf("%s%s", l.BaseURI.String(), l.JSONPointer.Fragment())
 }
 
 func (l Location) AddReferenceToken(s string) Location {
@@ -26,9 +27,7 @@ func (l Location) AddReferenceToken(s string) Location {
 }
 
 func (l Location) MarshalJSON() ([]byte, error) {
-	u := l.BaseURI
-	u.Fragment = l.JSONPointer.String()
-	return json.Marshal(u.String())
+	return json.Marshal(l.String())
 }
 
 func (l *Location) UnmarshalJSON(b []byte) error {

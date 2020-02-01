@@ -22,6 +22,16 @@ type ApplicationContext struct {
 	ReferencedLocation []Location
 }
 
+var handledKeywords map[string]struct{} = map[string]struct{}{
+	"$id":     {},
+	"$anchor": {},
+	"$ref":    {},
+	// TODO: Handle $schema
+	"$schema": {},
+	// TODO: Handle $vocabulary
+	"$vocabulary": {},
+}
+
 func (c ApplicationContext) Apply(input Node) (*Node, error) {
 	// Handle $ref
 	if obj, ok := input.Schema.JSONValue.(map[string]JSON); ok {
@@ -44,7 +54,6 @@ func (c ApplicationContext) Apply(input Node) (*Node, error) {
 				Instance:                input.Instance,
 				InstanceLocation:        input.InstanceLocation,
 				Schema:                  *referencedSchema,
-				Keyword:                 "$ref",
 				KeywordLocation:         input.KeywordLocation.AddReferenceToken("$ref"),
 				AbsoluteKeywordLocation: location,
 			}
@@ -66,6 +75,9 @@ func (c ApplicationContext) Apply(input Node) (*Node, error) {
 
 			input.Valid = child.Valid
 			input.Children = append(input.Children, *child)
+			input.KeywordLocation = input.KeywordLocation.AddReferenceToken("$ref")
+			input.AbsoluteKeywordLocation = input.AbsoluteKeywordLocation.AddReferenceToken("$ref")
+			input.Keyword = "$ref"
 
 			return &input, nil
 		}
@@ -74,7 +86,6 @@ func (c ApplicationContext) Apply(input Node) (*Node, error) {
 
 	// Handle boolean schema
 	if b, ok := input.Schema.JSONValue.(bool); ok {
-		// TODO(boolean): fill in info
 		input.Valid = b
 		return &input, nil
 	}
@@ -85,6 +96,10 @@ func (c ApplicationContext) Apply(input Node) (*Node, error) {
 		// We also need to ignore any unknown keywords.
 		keywords := map[string]struct{}{}
 		for name := range schema {
+			// Ignore handled keyword
+			if _, ok := handledKeywords[name]; ok {
+				continue
+			}
 			keywords[name] = struct{}{}
 		}
 		// We now have a set of present keywords in the schema object.
