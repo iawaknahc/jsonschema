@@ -6,68 +6,65 @@ import (
 
 type PatternProperties struct{}
 
-var _ Keyworder = PatternProperties{}
-var _ Applicator = PatternProperties{}
-var _ Annotator = PatternProperties{}
+var _ Keyword = PatternProperties{}
+var _ AnnotatingKeyword = PatternProperties{}
 
 func (_ PatternProperties) Keyword() string {
 	return "patternProperties"
 }
 
-func (_ PatternProperties) MergeAnnotations(annotations []Annotation) (*Annotation, bool) {
-	if len(annotations) <= 0 {
+func (_ PatternProperties) CombineAnnotations(values []interface{}) (interface{}, bool) {
+	if len(values) <= 0 {
 		return nil, false
 	}
 
-	out := annotations[0]
 	merged := map[string]struct{}{}
-	for _, a := range annotations {
-		for name := range a.Value.(map[string]struct{}) {
+	for _, v := range values {
+		for name := range v.(map[string]struct{}) {
 			merged[name] = struct{}{}
 		}
 	}
 
-	out.Value = merged
-	return &out, true
+	return merged, true
 }
 
-func (_ PatternProperties) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	obj, ok := ctx.Instance.(map[string]interface{})
+func (_ PatternProperties) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	obj, ok := input.Instance.(map[string]interface{})
 	if !ok {
-		return
+		return &input, nil
 	}
 
 	patternPropertiesName := map[string]struct{}{}
-	for pattern, schema := range ctx.Schema.JSONValue.(map[string]JSON) {
+	for pattern, schema := range input.Schema.JSONValue.(map[string]JSON) {
 		re, err := regexp.Compile(pattern)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		for name, val := range obj {
 			if re.MatchString(name) {
 				patternPropertiesName[name] = struct{}{}
-				c := ctx
-				c.Schema = schema
-				c.KeywordLocation = c.KeywordLocation.AddReferenceToken(pattern)
-				c.AbsoluteKeywordLocation = c.AbsoluteKeywordLocation.AddReferenceToken(pattern)
-				c.Instance = val
-				c.InstanceLocation = c.InstanceLocation.AddReferenceToken(name)
-				childA, childE := c.Apply()
-				annotations = append(annotations, childA...)
-				errors = append(errors, childE...)
+				childInput := Node{
+					Valid:                   true,
+					Parent:                  &input,
+					Instance:                val,
+					InstanceLocation:        input.InstanceLocation.AddReferenceToken(name),
+					Schema:                  schema,
+					KeywordLocation:         input.KeywordLocation.AddReferenceToken(pattern),
+					AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(pattern),
+				}
+				child, err := ctx.Apply(childInput)
+				if err != nil {
+					return nil, err
+				}
+				if !child.Valid {
+					input.Valid = false
+				}
+				input.Children = append(input.Children, *child)
 			}
 		}
 	}
 
-	// TODO: Add error for patternProperties
+	input.Annotation = patternPropertiesName
 
-	annotations = append(annotations, Annotation{
-		InstanceLocation:        ctx.InstanceLocation,
-		Keyword:                 ctx.Keyword,
-		KeywordLocation:         ctx.KeywordLocation,
-		AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-		Value:                   patternPropertiesName,
-	})
-
-	return
+	return &input, nil
 }

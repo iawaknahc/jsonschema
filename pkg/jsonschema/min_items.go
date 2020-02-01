@@ -10,35 +10,29 @@ type MinItems struct {
 	Actual   int         `json:"actual"`
 }
 
-var _ Keyworder = MinItems{}
-var _ Applicator = MinItems{}
+var _ Keyword = MinItems{}
 
 func (_ MinItems) Keyword() string {
 	return "minItems"
 }
 
-func (_ MinItems) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	arr, ok := ctx.Instance.([]interface{})
+func (_ MinItems) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	arr, ok := input.Instance.([]interface{})
 	if !ok {
-		return
+		return &input, nil
 	}
-	minItems := ctx.Schema.JSONValue.(json.Number)
+	minItems := input.Schema.JSONValue.(json.Number)
 	arrLen := len(arr)
 	i, err := strconv.Atoi(string(minItems))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if arrLen < i {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: MinItems{
-				Expected: minItems,
-				Actual:   arrLen,
-			},
-		})
+		input.Valid = false
+		input.Info = MinItems{
+			Expected: minItems,
+			Actual:   arrLen,
+		}
 	}
-	return
+	return &input, nil
 }

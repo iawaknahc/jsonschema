@@ -72,14 +72,14 @@ func test(t *testing.T, p string, skip ...string) {
 				t.Fatalf("failed to marshal data: %v", err)
 			}
 
-			_, errors, err := collection.Apply(id, bytes.NewReader(dataBytes))
+			node, err := collection.Apply(id, bytes.NewReader(dataBytes))
 			if err != nil {
 				t.Fatalf("%s: %s: unexpected error: %v", c.Description, test.Description, err)
 			}
-			if test.Valid && len(errors) > 0 {
-				t.Fatalf("%s: %s: %+v", c.Description, test.Description, errors)
+			if test.Valid && !node.Valid {
+				t.Fatalf("%s: %s: %+v", c.Description, test.Description, node)
 			}
-			if !test.Valid && len(errors) <= 0 {
+			if !test.Valid && node.Valid {
 				t.Fatalf("%s: %s", c.Description, test.Description)
 			}
 		}

@@ -6,27 +6,23 @@ import (
 
 type Items struct{}
 
-var _ Keyworder = Items{}
-var _ Applicator = Items{}
-var _ Annotator = Items{}
+var _ Keyword = Items{}
+var _ AnnotatingKeyword = Items{}
 
 func (_ Items) Keyword() string {
 	return "items"
 }
 
-func (_ Items) MergeAnnotations(annotations []Annotation) (*Annotation, bool) {
-	if len(annotations) <= 0 {
+func (_ Items) CombineAnnotations(values []interface{}) (interface{}, bool) {
+	if len(values) <= 0 {
 		return nil, false
 	}
 
-	out := annotations[0]
-	hasTrue := false
 	largestIndex := -1
-
-	for _, a := range annotations {
-		switch v := a.Value.(type) {
+	for _, a := range values {
+		switch v := a.(type) {
 		case bool:
-			hasTrue = true
+			return true, true
 		case int:
 			if v > largestIndex {
 				largestIndex = v
@@ -34,62 +30,67 @@ func (_ Items) MergeAnnotations(annotations []Annotation) (*Annotation, bool) {
 		}
 	}
 
-	if hasTrue {
-		out.Value = true
-	} else {
-		out.Value = largestIndex
-	}
-
-	return &out, true
+	return largestIndex, true
 }
 
-func (_ Items) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	arr, ok := ctx.Instance.([]interface{})
+func (_ Items) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	arr, ok := input.Instance.([]interface{})
 	if !ok {
-		return
+		return &input, nil
 	}
 
 	largestIndex := -1
-	switch schema := ctx.Schema.JSONValue.(type) {
+	switch schema := input.Schema.JSONValue.(type) {
 	case []JSON:
 		for i := 0; i < len(arr) && i < len(schema); i++ {
 			largestIndex = i
 			item := arr[i]
-			c := ctx
-			c.Schema = schema[i]
-			c.KeywordLocation = c.KeywordLocation.AddReferenceToken(strconv.Itoa(i))
-			c.AbsoluteKeywordLocation = c.AbsoluteKeywordLocation.AddReferenceToken(strconv.Itoa(i))
-			c.Instance = item
-			c.InstanceLocation = c.InstanceLocation.AddReferenceToken(strconv.Itoa(i))
-			childA, childE := c.Apply()
-			annotations = append(annotations, childA...)
-			errors = append(errors, childE...)
+			childInput := Node{
+				Valid:                   true,
+				Parent:                  &input,
+				Instance:                item,
+				InstanceLocation:        input.InstanceLocation.AddReferenceToken(strconv.Itoa(i)),
+				Schema:                  schema[i],
+				KeywordLocation:         input.KeywordLocation.AddReferenceToken(strconv.Itoa(i)),
+				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(strconv.Itoa(i)),
+			}
+			child, err := ctx.Apply(childInput)
+			if err != nil {
+				return nil, err
+			}
+			if !child.Valid {
+				input.Valid = false
+			}
+			input.Children = append(input.Children, *child)
 		}
 	default:
 		for i, item := range arr {
 			largestIndex = i
-			c := ctx
-			c.Instance = item
-			c.InstanceLocation = c.InstanceLocation.AddReferenceToken(strconv.Itoa(i))
-			childA, childE := c.Apply()
-			annotations = append(annotations, childA...)
-			errors = append(errors, childE...)
+			childInput := Node{
+				Valid:                   true,
+				Parent:                  &input,
+				Instance:                item,
+				InstanceLocation:        input.InstanceLocation.AddReferenceToken(strconv.Itoa(i)),
+				Schema:                  input.Schema,
+				KeywordLocation:         input.KeywordLocation,
+				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation,
+			}
+			child, err := ctx.Apply(childInput)
+			if err != nil {
+				return nil, err
+			}
+			if !child.Valid {
+				input.Valid = false
+			}
+			input.Children = append(input.Children, *child)
 		}
 	}
 
-	var value interface{}
 	if largestIndex == len(arr)-1 {
-		value = true
+		input.Annotation = true
 	} else {
-		value = largestIndex
+		input.Annotation = largestIndex
 	}
-	annotations = append(annotations, Annotation{
-		InstanceLocation:        ctx.InstanceLocation,
-		Keyword:                 ctx.Keyword,
-		KeywordLocation:         ctx.KeywordLocation,
-		AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-		Value:                   value,
-	})
 
-	return
+	return &input, nil
 }

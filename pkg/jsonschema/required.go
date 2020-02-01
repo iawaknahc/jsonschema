@@ -6,21 +6,20 @@ type Required struct {
 	Missing  []string `json:"missing"`
 }
 
-var _ Keyworder = Required{}
-var _ Applicator = Required{}
+var _ Keyword = Required{}
 
 func (_ Required) Keyword() string {
 	return "required"
 }
 
-func (_ Required) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	obj, ok := ctx.Instance.(map[string]interface{})
+func (_ Required) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	obj, ok := input.Instance.(map[string]interface{})
 	if !ok {
-		return
+		return &input, nil
 	}
 
 	var expected []string
-	for _, name := range UnwrapJSON(ctx.Schema).([]interface{}) {
+	for _, name := range UnwrapJSON(input.Schema).([]interface{}) {
 		expected = append(expected, name.(string))
 	}
 
@@ -40,18 +39,13 @@ func (_ Required) Apply(ctx ApplicationContext) (annotations []Annotation, error
 	}
 
 	if len(missing) > 0 {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: Required{
-				Expected: expected,
-				Actual:   actual,
-				Missing:  missing,
-			},
-		})
+		input.Valid = false
+		input.Info = Required{
+			Expected: expected,
+			Actual:   actual,
+			Missing:  missing,
+		}
 	}
 
-	return
+	return &input, nil
 }

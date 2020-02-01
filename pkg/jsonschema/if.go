@@ -1,14 +1,25 @@
 package jsonschema
 
-type Not struct{}
+type If struct{}
 
-var _ Keyword = Not{}
+var _ Keyword = If{}
+var _ AnnotatingKeyword = If{}
 
-func (_ Not) Keyword() string {
-	return "not"
+func (_ If) Keyword() string {
+	return "if"
 }
 
-func (_ Not) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+func (_ If) CombineAnnotations(values []interface{}) (interface{}, bool) {
+	if len(values) <= 0 {
+		return nil, false
+	}
+	if len(values) == 1 {
+		return values[0], true
+	}
+	panic("impossible to combine annotation value of if")
+}
+
+func (_ If) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	childInput := Node{
 		Valid:                   true,
 		Parent:                  &input,
@@ -22,7 +33,9 @@ func (_ Not) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	input.Valid = !child.Valid
+	// if is always valid
+	input.Valid = true
 	input.Children = append(input.Children, *child)
+	input.Annotation = child.Valid
 	return &input, nil
 }

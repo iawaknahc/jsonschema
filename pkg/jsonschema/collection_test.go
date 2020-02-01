@@ -193,38 +193,3 @@ func TestAddSchemaAppendixA(t *testing.T) {
 		}
 	}
 }
-
-func TestApply(t *testing.T) {
-	schemaStr := `
-	{
-		"$id": "http://example.com",
-		"const": 42
-	}
-	`
-	c := NewCollection()
-	err := c.AddSchema(strings.NewReader(schemaStr), "")
-	if err != nil {
-		t.Errorf("err: %v", err)
-	}
-
-	_, errors, err := c.Apply("http://example.com", strings.NewReader(`{}`))
-	if err != nil {
-		t.Errorf("err: %v", err)
-	}
-
-	expectedStr := `
-	[
-		{
-			"keyword": "const",
-			"instanceLocation": "",
-			"keywordLocation": "http://example.com#/const",
-			"absoluteKeywordLocation": "http://example.com#/const",
-			"value": {
-				"const": 42
-			}
-		}
-	]
-	`
-
-	JSONEq(t, expectedStr, errors)
-}

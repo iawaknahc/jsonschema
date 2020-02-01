@@ -10,35 +10,29 @@ type MaxItems struct {
 	Actual   int         `json:"actual"`
 }
 
-var _ Keyworder = MaxItems{}
-var _ Applicator = MaxItems{}
+var _ Keyword = MaxItems{}
 
 func (_ MaxItems) Keyword() string {
 	return "maxItems"
 }
 
-func (_ MaxItems) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	arr, ok := ctx.Instance.([]interface{})
+func (_ MaxItems) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	arr, ok := input.Instance.([]interface{})
 	if !ok {
-		return
+		return &input, nil
 	}
-	maxItems := ctx.Schema.JSONValue.(json.Number)
+	maxItems := input.Schema.JSONValue.(json.Number)
 	arrLen := len(arr)
 	i, err := strconv.Atoi(string(maxItems))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if arrLen > i {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: MaxItems{
-				Expected: maxItems,
-				Actual:   arrLen,
-			},
-		})
+		input.Valid = false
+		input.Info = MaxItems{
+			Expected: maxItems,
+			Actual:   arrLen,
+		}
 	}
-	return
+	return &input, nil
 }

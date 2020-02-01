@@ -9,38 +9,32 @@ type Maximum struct {
 	Actual  json.Number `json:"actual"`
 }
 
-var _ Keyworder = Maximum{}
-var _ Applicator = Maximum{}
+var _ Keyword = Maximum{}
 
 func (_ Maximum) Keyword() string {
 	return "maximum"
 }
 
-func (_ Maximum) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	num, ok := ctx.Instance.(json.Number)
+func (_ Maximum) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	num, ok := input.Instance.(json.Number)
 	if !ok {
-		return
+		return &input, nil
 	}
-	limit := ctx.Schema.JSONValue.(json.Number)
+	limit := input.Schema.JSONValue.(json.Number)
 	numf, err := num.Float64()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	limitf, err := limit.Float64()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if numf > limitf {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: Maximum{
-				Maximum: limit,
-				Actual:  num,
-			},
-		})
+		input.Valid = false
+		input.Info = Maximum{
+			Maximum: limit,
+			Actual:  num,
+		}
 	}
-	return
+	return &input, nil
 }

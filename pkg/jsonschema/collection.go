@@ -171,7 +171,7 @@ func (c *Collection) buildIndex(schema JSON, currentBaseURL url.URL, ptr jsonpoi
 }
 
 // Apply applies the schema referenced by u on r.
-func (c *Collection) Apply(u string, r io.Reader) (annotations []Annotation, errors []Error, err error) {
+func (c *Collection) Apply(u string, r io.Reader) (node *Node, err error) {
 	instance, err := DecodePlainJSON(r)
 	if err != nil {
 		return
@@ -187,15 +187,18 @@ func (c *Collection) Apply(u string, r io.Reader) (annotations []Annotation, err
 		JSONPointer: schema.CanonicalLocation,
 	}
 
-	ctx := &ApplicationContext{
-		Collection:              c,
+	ctx := ApplicationContext{
+		Collection: c,
+		Vocabulary: DefaultVocabulary,
+	}
+
+	input := Node{
+		Valid:                   true,
 		Schema:                  *schema,
 		Instance:                instance,
 		KeywordLocation:         location,
 		AbsoluteKeywordLocation: location,
-		Vocabulary:              DefaultVocabulary,
 	}
 
-	annotations, errors = ctx.Apply()
-	return
+	return ctx.Apply(input)
 }

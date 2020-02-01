@@ -10,40 +10,34 @@ type MultipleOf struct {
 	Quotient float64 `json:"quotient"`
 }
 
-var _ Keyworder = MultipleOf{}
-var _ Applicator = MultipleOf{}
+var _ Keyword = MultipleOf{}
 
 func (_ MultipleOf) Keyword() string {
 	return "multipleOf"
 }
 
-func (_ MultipleOf) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	dividendStr, ok := ctx.Instance.(json.Number)
+func (_ MultipleOf) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	dividendStr, ok := input.Instance.(json.Number)
 	if !ok {
-		return
+		return &input, nil
 	}
 	dividend, err := dividendStr.Float64()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	divisor, err := ctx.Schema.JSONValue.(json.Number).Float64()
+	divisor, err := input.Schema.JSONValue.(json.Number).Float64()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	quotient := dividend / divisor
 	ok = float64(int(quotient)) == quotient
 	if !ok {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: MultipleOf{
-				Dividend: dividend,
-				Divisor:  divisor,
-				Quotient: quotient,
-			},
-		})
+		input.Valid = false
+		input.Info = MultipleOf{
+			Dividend: dividend,
+			Divisor:  divisor,
+			Quotient: quotient,
+		}
 	}
-	return
+	return &input, nil
 }

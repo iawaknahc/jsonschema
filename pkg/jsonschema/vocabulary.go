@@ -1,55 +1,51 @@
 package jsonschema
 
-type Applicator interface {
-	Apply(c ApplicationContext) (annotations []Annotation, errors []Error)
+type Keyword interface {
+	Keyword() string
+	Apply(ctx ApplicationContext, input Node) (*Node, error)
 }
 
-type Keyworder interface {
-	Keyword() string
+type AnnotatingKeyword interface {
+	Keyword
+	CombineAnnotations(values []interface{}) (interface{}, bool)
 }
 
 type Vocabulary struct {
-	Independent []Applicator
-	PreInplace  []Applicator
-	Inplace     []Applicator
-	PostInplace []Applicator
+	Keywords []Keyword
 }
 
 var DefaultVocabulary = Vocabulary{
-	Independent: []Applicator{
-		Boolean{},
-
+	Keywords: []Keyword{
+		// Independent keywords
+		// Their order is unimportant.
 		Type{},
-
 		Const{},
-
 		Required{},
-
 		MaxItems{},
 		MinItems{},
-
 		MaxLength{},
 		MinLength{},
-
 		MultipleOf{},
 		Maximum{},
 		ExclusiveMaximum{},
 		Minimum{},
 		ExclusiveMinimum{},
-	},
-	PreInplace: []Applicator{
+		// Keywords that must be processed before in-place applicators.
+		// The order within the group is also important.
+		// The properties group.
 		Properties{},
 		PatternProperties{},
 		AdditionalProperties{},
-
+		// The items group.
 		Items{},
 		AdditionalItems{},
-	},
-	Inplace: []Applicator{
+		// In-place applicators
 		AllOf{},
 		OneOf{},
 		AnyOf{},
 		Not{},
-		IfThenElse{},
+		If{},
+		Then{},
+		Else{},
 	},
 }

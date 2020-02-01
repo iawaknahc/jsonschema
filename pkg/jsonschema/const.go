@@ -5,30 +5,27 @@ import (
 )
 
 type Const struct {
-	Const interface{} `json:"const"`
+	Expected interface{} `json:"expected"`
+	Actual   interface{} `json:"actual"`
 }
 
-var _ Keyworder = Const{}
-var _ Applicator = Const{}
+var _ Keyword = Const{}
 
 func (_ Const) Keyword() string {
 	return "const"
 }
 
-func (_ Const) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	constValue := ToFloat64(UnwrapJSON(ctx.Schema))
-	value := ToFloat64(ctx.Instance)
+func (_ Const) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	constValue := ToFloat64(UnwrapJSON(input.Schema))
+	value := ToFloat64(input.Instance)
 
 	if !reflect.DeepEqual(value, constValue) {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: Const{
-				Const: constValue,
-			},
-		})
+		input.Valid = false
+		input.Info = Const{
+			Expected: constValue,
+			Actual:   value,
+		}
 	}
-	return
+
+	return &input, nil
 }

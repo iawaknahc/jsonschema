@@ -11,35 +11,29 @@ type MaxLength struct {
 	Actual   int         `json:"actual"`
 }
 
-var _ Keyworder = MaxLength{}
-var _ Applicator = MaxLength{}
+var _ Keyword = MaxLength{}
 
 func (_ MaxLength) Keyword() string {
 	return "maxLength"
 }
 
-func (_ MaxLength) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	str, ok := ctx.Instance.(string)
+func (_ MaxLength) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	str, ok := input.Instance.(string)
 	if !ok {
-		return
+		return &input, nil
 	}
-	maxItems := ctx.Schema.JSONValue.(json.Number)
+	maxItems := input.Schema.JSONValue.(json.Number)
 	length := utf8.RuneCountInString(str)
 	i, err := strconv.Atoi(string(maxItems))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if length > i {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: MaxLength{
-				Expected: maxItems,
-				Actual:   length,
-			},
-		})
+		input.Valid = false
+		input.Info = MaxLength{
+			Expected: maxItems,
+			Actual:   length,
+		}
 	}
-	return
+	return &input, nil
 }

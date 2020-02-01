@@ -6,55 +6,63 @@ import (
 
 type AdditionalItems struct{}
 
-var _ Keyworder = AdditionalItems{}
-var _ Applicator = AdditionalItems{}
-var _ Annotator = AdditionalItems{}
+var _ Keyword = AdditionalItems{}
+var _ AnnotatingKeyword = AdditionalItems{}
 
 func (_ AdditionalItems) Keyword() string {
 	return "additionalItems"
 }
 
-func (_ AdditionalItems) MergeAnnotations(annotations []Annotation) (*Annotation, bool) {
-	if len(annotations) <= 0 {
+func (_ AdditionalItems) CombineAnnotations(values []interface{}) (interface{}, bool) {
+	if len(values) <= 0 {
 		return nil, false
 	}
-	out := annotations[0]
-	return &out, true
+	return true, true
 }
 
-func (_ AdditionalItems) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	arr, ok := ctx.Instance.([]interface{})
+func (_ AdditionalItems) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	arr, ok := input.Instance.([]interface{})
 	if !ok {
-		return
+		return &input, nil
 	}
-	a, ok := ctx.GetAnnotation(Items{})
+	a, ok := input.GetAnnotationsFromAdjacentKeywords(Items{})
 	if !ok {
-		return
+		return &input, nil
 	}
-	if _, ok := a.Value.(bool); ok {
-		return
+	if _, ok := a.(bool); ok {
+		return &input, nil
 	}
-	switch j := a.Value.(type) {
+	switch j := a.(type) {
 	case int:
+		applied := false
 		for i, item := range arr {
 			if i <= j {
 				continue
 			}
-			c := ctx
-			c.Instance = item
-			c.InstanceLocation = c.InstanceLocation.AddReferenceToken(strconv.Itoa(i))
-			childA, childE := c.Apply()
-			annotations = append(annotations, childA...)
-			errors = append(errors, childE...)
+			applied = true
+			childInput := Node{
+				Valid:                   true,
+				Parent:                  &input,
+				Instance:                item,
+				InstanceLocation:        input.InstanceLocation.AddReferenceToken(strconv.Itoa(i)),
+				Schema:                  input.Schema,
+				KeywordLocation:         input.KeywordLocation,
+				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation,
+			}
+			child, err := ctx.Apply(childInput)
+			if err != nil {
+				return nil, err
+			}
+			if !child.Valid {
+				input.Valid = false
+			}
+			input.Children = append(input.Children, *child)
 		}
-		annotations = append(annotations, Annotation{
-			InstanceLocation:        ctx.InstanceLocation,
-			Keyword:                 ctx.Keyword,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value:                   true,
-		})
+		if applied {
+			input.Annotation = true
+
+		}
 	}
 
-	return
+	return &input, nil
 }

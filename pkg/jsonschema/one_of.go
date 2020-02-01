@@ -4,55 +4,41 @@ import (
 	"strconv"
 )
 
-type OneOf struct {
-	Result []bool `json:"result"`
-}
+type OneOf struct{}
 
-var _ Keyworder = OneOf{}
-var _ Applicator = OneOf{}
+var _ Keyword = OneOf{}
 
 func (_ OneOf) Keyword() string {
 	return "oneOf"
 }
 
-func (_ OneOf) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	var result []bool
+func (_ OneOf) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	var numValid int
-	var numInvalid int
-	for i, subschema := range ctx.Schema.JSONValue.([]JSON) {
-		c := ctx
-		c.Schema = subschema
-		c.KeywordLocation = c.KeywordLocation.AddReferenceToken(strconv.Itoa(i))
-		c.AbsoluteKeywordLocation = c.AbsoluteKeywordLocation.AddReferenceToken(strconv.Itoa(i))
-		a, e := c.Apply()
-		if len(e) > 0 {
-			numInvalid++
-			result = append(result, false)
-		} else {
-			numValid++
-			result = append(result, true)
-			annotations = append(annotations, a...)
+	for i, subschema := range input.Schema.JSONValue.([]JSON) {
+		childInput := Node{
+			Valid:                   true,
+			Parent:                  &input,
+			Instance:                input.Instance,
+			InstanceLocation:        input.InstanceLocation,
+			Schema:                  subschema,
+			KeywordLocation:         input.KeywordLocation.AddReferenceToken(strconv.Itoa(i)),
+			AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(strconv.Itoa(i)),
 		}
-		errors = append(errors, e...)
+		child, err := ctx.Apply(childInput)
+		if err != nil {
+			return nil, err
+		}
+
+		if child.Valid {
+			numValid++
+		}
+
+		input.Children = append(input.Children, *child)
 	}
 
 	if numValid != 1 {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: OneOf{
-				Result: result,
-			},
-		})
-	} else {
-		errors = nil
+		input.Valid = false
 	}
 
-	if len(errors) > 0 {
-		annotations = nil
-	}
-
-	return
+	return &input, nil
 }

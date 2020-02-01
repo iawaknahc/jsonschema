@@ -2,62 +2,59 @@ package jsonschema
 
 type Properties struct{}
 
-var _ Keyworder = Properties{}
-var _ Applicator = Properties{}
-var _ Annotator = Properties{}
+var _ Keyword = Properties{}
+var _ AnnotatingKeyword = Properties{}
 
 func (_ Properties) Keyword() string {
 	return "properties"
 }
 
-func (_ Properties) MergeAnnotations(annotations []Annotation) (*Annotation, bool) {
-	if len(annotations) <= 0 {
+func (_ Properties) CombineAnnotations(values []interface{}) (interface{}, bool) {
+	if len(values) <= 0 {
 		return nil, false
 	}
 
-	out := annotations[0]
 	merged := map[string]struct{}{}
-	for _, a := range annotations {
-		for name := range a.Value.(map[string]struct{}) {
+	for _, v := range values {
+		for name := range v.(map[string]struct{}) {
 			merged[name] = struct{}{}
 		}
 	}
 
-	out.Value = merged
-	return &out, true
+	return merged, true
 }
 
-func (_ Properties) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	obj, ok := ctx.Instance.(map[string]interface{})
+func (_ Properties) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	obj, ok := input.Instance.(map[string]interface{})
 	if !ok {
-		return
+		return &input, nil
 	}
 
 	propertiesName := map[string]struct{}{}
-	for name, schema := range ctx.Schema.JSONValue.(map[string]JSON) {
+	for name, schema := range input.Schema.JSONValue.(map[string]JSON) {
 		if val, ok := obj[name]; ok {
 			propertiesName[name] = struct{}{}
-			c := ctx
-			c.Schema = schema
-			c.KeywordLocation = c.KeywordLocation.AddReferenceToken(name)
-			c.AbsoluteKeywordLocation = c.AbsoluteKeywordLocation.AddReferenceToken(name)
-			c.Instance = val
-			c.InstanceLocation = c.InstanceLocation.AddReferenceToken(name)
-			childA, childE := c.Apply()
-			annotations = append(annotations, childA...)
-			errors = append(errors, childE...)
+			childInput := Node{
+				Valid:                   true,
+				Parent:                  &input,
+				Instance:                val,
+				InstanceLocation:        input.InstanceLocation.AddReferenceToken(name),
+				Schema:                  schema,
+				KeywordLocation:         input.KeywordLocation.AddReferenceToken(name),
+				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(name),
+			}
+			child, err := ctx.Apply(childInput)
+			if err != nil {
+				return nil, err
+			}
+			if !child.Valid {
+				input.Valid = false
+			}
+			input.Children = append(input.Children, *child)
 		}
 	}
 
-	// TODO: Add error for properties
+	input.Annotation = propertiesName
 
-	annotations = append(annotations, Annotation{
-		InstanceLocation:        ctx.InstanceLocation,
-		Keyword:                 ctx.Keyword,
-		KeywordLocation:         ctx.KeywordLocation,
-		AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-		Value:                   propertiesName,
-	})
-
-	return
+	return &input, nil
 }

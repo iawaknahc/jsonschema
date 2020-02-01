@@ -4,55 +4,41 @@ import (
 	"strconv"
 )
 
-type AllOf struct {
-	Result []bool `json:"result"`
-}
+type AllOf struct{}
 
-var _ Keyworder = AllOf{}
-var _ Applicator = AllOf{}
+var _ Keyword = AllOf{}
 
 func (_ AllOf) Keyword() string {
 	return "allOf"
 }
 
-func (_ AllOf) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	var result []bool
-	var numValid int
+func (_ AllOf) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	var numInvalid int
-	for i, subschema := range ctx.Schema.JSONValue.([]JSON) {
-		c := ctx
-		c.Schema = subschema
-		c.KeywordLocation = c.KeywordLocation.AddReferenceToken(strconv.Itoa(i))
-		c.AbsoluteKeywordLocation = c.AbsoluteKeywordLocation.AddReferenceToken(strconv.Itoa(i))
-		a, e := c.Apply()
-		if len(e) > 0 {
-			numInvalid++
-			result = append(result, false)
-		} else {
-			numValid++
-			result = append(result, true)
-			annotations = append(annotations, a...)
+	for i, subschema := range input.Schema.JSONValue.([]JSON) {
+		childInput := Node{
+			Valid:                   true,
+			Parent:                  &input,
+			Instance:                input.Instance,
+			InstanceLocation:        input.InstanceLocation,
+			Schema:                  subschema,
+			KeywordLocation:         input.KeywordLocation.AddReferenceToken(strconv.Itoa(i)),
+			AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(strconv.Itoa(i)),
 		}
-		errors = append(errors, e...)
+		child, err := ctx.Apply(childInput)
+		if err != nil {
+			return nil, err
+		}
+
+		if !child.Valid {
+			numInvalid++
+		}
+
+		input.Children = append(input.Children, *child)
 	}
 
 	if numInvalid > 0 {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: AllOf{
-				Result: result,
-			},
-		})
-	} else {
-		errors = nil
+		input.Valid = false
 	}
 
-	if len(errors) > 0 {
-		annotations = nil
-	}
-
-	return
+	return &input, nil
 }

@@ -9,38 +9,32 @@ type ExclusiveMinimum struct {
 	Actual           json.Number `json:"actual"`
 }
 
-var _ Keyworder = ExclusiveMinimum{}
-var _ Applicator = ExclusiveMinimum{}
+var _ Keyword = ExclusiveMinimum{}
 
 func (_ ExclusiveMinimum) Keyword() string {
 	return "exclusiveMinimum"
 }
 
-func (_ ExclusiveMinimum) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	num, ok := ctx.Instance.(json.Number)
+func (_ ExclusiveMinimum) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	num, ok := input.Instance.(json.Number)
 	if !ok {
-		return
+		return &input, nil
 	}
-	limit := ctx.Schema.JSONValue.(json.Number)
+	limit := input.Schema.JSONValue.(json.Number)
 	numf, err := num.Float64()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	limitf, err := limit.Float64()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if numf <= limitf {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: ExclusiveMinimum{
-				ExclusiveMinimum: limit,
-				Actual:           num,
-			},
-		})
+		input.Valid = false
+		input.Info = ExclusiveMinimum{
+			ExclusiveMinimum: limit,
+			Actual:           num,
+		}
 	}
-	return
+	return &input, nil
 }

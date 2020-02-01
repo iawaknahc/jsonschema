@@ -10,17 +10,16 @@ type Type struct {
 	Actual   []string `json:"actual"`
 }
 
-var _ Keyworder = Type{}
-var _ Applicator = Type{}
+var _ Keyword = Type{}
 
 func (_ Type) Keyword() string {
 	return "type"
 }
 
-func (_ Type) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
+func (_ Type) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	// Prepare expected.
 	var expected []string
-	switch a := UnwrapJSON(ctx.Schema).(type) {
+	switch a := UnwrapJSON(input.Schema).(type) {
 	case string:
 		expected = []string{a}
 	case []interface{}:
@@ -33,7 +32,7 @@ func (_ Type) Apply(ctx ApplicationContext) (annotations []Annotation, errors []
 
 	// Prepare actual
 	var actual []string
-	switch d := ctx.Instance.(type) {
+	switch d := input.Instance.(type) {
 	case nil:
 		actual = append(actual, "null")
 	case string:
@@ -52,23 +51,19 @@ func (_ Type) Apply(ctx ApplicationContext) (annotations []Annotation, errors []
 		}
 	}
 
-	intersection := IntersectString(expected, actual)
+	intersection := intersectString(expected, actual)
 	if len(intersection) <= 0 {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: Type{
-				Expected: expected,
-				Actual:   actual,
-			},
-		})
+		input.Valid = false
+		input.Info = Type{
+			Expected: expected,
+			Actual:   actual,
+		}
 	}
-	return
+
+	return &input, nil
 }
 
-func IntersectString(a []string, b []string) (out []string) {
+func intersectString(a []string, b []string) (out []string) {
 	for _, x := range a {
 		for _, y := range b {
 			if x == y {

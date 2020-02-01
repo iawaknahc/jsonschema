@@ -1,13 +1,9 @@
 # Output
 
-- [ ] Flag
+- [x] Flag
 - [ ] Basic
 - [ ] Detailed
 - [ ] Verbose
-
-# Error
-
-- [ ] Report runtime error instead of using panic
 
 # Keyword Support
 

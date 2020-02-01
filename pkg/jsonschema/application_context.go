@@ -1,10 +1,7 @@
 package jsonschema
 
 import (
-	"reflect"
 	"strings"
-
-	"github.com/iawaknahc/jsonschema/pkg/jsonpointer"
 )
 
 type ErrCircularReference struct {
@@ -20,124 +17,126 @@ func (e ErrCircularReference) Error() string {
 }
 
 type ApplicationContext struct {
-	Collection              *Collection
-	Schema                  JSON
-	Instance                interface{}
-	Keyword                 string
-	InstanceLocation        jsonpointer.T
-	KeywordLocation         Location
-	AbsoluteKeywordLocation Location
-	Vocabulary              Vocabulary
-	Annotations             []Annotation
-	ReferencedLocation      []Location
+	Collection         *Collection
+	Vocabulary         Vocabulary
+	ReferencedLocation []Location
 }
 
-func (c ApplicationContext) Apply() (annotations []Annotation, errors []Error) {
-	c.Annotations = nil
-
-	if schema, ok := c.Schema.JSONValue.(map[string]JSON); ok {
-		if ref, ok := schema["$ref"].JSONValue.(string); ok {
-			u, err := c.Schema.BaseURI.Parse(ref)
+func (c ApplicationContext) Apply(input Node) (*Node, error) {
+	// Handle $ref
+	if obj, ok := input.Schema.JSONValue.(map[string]JSON); ok {
+		if ref, ok := obj["$ref"].JSONValue.(string); ok {
+			u, err := input.Schema.BaseURI.Parse(ref)
 			if err != nil {
-				panic(err)
+				return nil, err
 			}
 			referencedSchema, err := c.Collection.GetSchema(u.String())
 			if err != nil {
-				panic(err)
+				return nil, err
 			}
-
-			c.Schema = *referencedSchema
-			c.KeywordLocation = c.KeywordLocation.AddReferenceToken("$ref")
 			location := Location{
 				BaseURI:     referencedSchema.BaseURI,
 				JSONPointer: referencedSchema.CanonicalLocation,
 			}
+			childInput := Node{
+				Valid:                   true,
+				Parent:                  &input,
+				Instance:                input.Instance,
+				InstanceLocation:        input.InstanceLocation,
+				Schema:                  *referencedSchema,
+				Keyword:                 "$ref",
+				KeywordLocation:         input.KeywordLocation.AddReferenceToken("$ref"),
+				AbsoluteKeywordLocation: location,
+			}
 
+			// Detect cycle.
 			for _, l := range c.ReferencedLocation {
 				if l.String() == location.String() {
-					panic(ErrCircularReference{
+					return nil, ErrCircularReference{
 						Locations: c.ReferencedLocation,
-					})
+					}
 				}
 			}
 			c.ReferencedLocation = append(c.ReferencedLocation, location)
 
-			c.AbsoluteKeywordLocation = location
-			return c.Apply()
+			child, err := c.Apply(childInput)
+			if err != nil {
+				return nil, err
+			}
+
+			input.Valid = child.Valid
+			input.Children = append(input.Children, *child)
+
+			return &input, nil
 		}
 	}
-
 	c.ReferencedLocation = nil
 
-	for _, applicator := range c.Vocabulary.Independent {
-		a, e := c.ApplyApplicator(applicator)
-		c.Annotations = append(c.Annotations, a...)
-		errors = append(errors, e...)
+	// Handle boolean schema
+	if b, ok := input.Schema.JSONValue.(bool); ok {
+		// TODO(boolean): fill in info
+		input.Valid = b
+		return &input, nil
 	}
 
-	for _, applicator := range c.Vocabulary.PreInplace {
-		a, e := c.ApplyApplicator(applicator)
-		c.Annotations = append(c.Annotations, a...)
-		errors = append(errors, e...)
-	}
-
-	for _, applicator := range c.Vocabulary.Inplace {
-		a, e := c.ApplyApplicator(applicator)
-		c.Annotations = append(c.Annotations, a...)
-		errors = append(errors, e...)
-	}
-
-	for _, applicator := range c.Vocabulary.PostInplace {
-		a, e := c.ApplyApplicator(applicator)
-		c.Annotations = append(c.Annotations, a...)
-		errors = append(errors, e...)
-	}
-
-	annotations = c.Annotations
-
-	return
-}
-
-func (c ApplicationContext) ApplyApplicator(applicator Applicator) (annotations []Annotation, errors []Error) {
-	keyworder, ok := applicator.(Keyworder)
-	if !ok {
-		return applicator.Apply(c)
-	}
-
-	keyword := keyworder.Keyword()
-	ctx, ok := c.GetKeyword(keyword)
-	if !ok {
-		return
-	}
-
-	return applicator.Apply(*ctx)
-}
-
-func (c ApplicationContext) GetKeyword(keyword string) (*ApplicationContext, bool) {
-	if schema, ok := c.Schema.JSONValue.(map[string]JSON); ok {
-		if j, ok := schema[keyword]; ok {
-			c.Schema = j
-			c.Keyword = keyword
-			c.KeywordLocation = c.KeywordLocation.AddReferenceToken(keyword)
-			c.AbsoluteKeywordLocation = c.AbsoluteKeywordLocation.AddReferenceToken(keyword)
-			return &c, true
+	// Handle each keywords
+	if schema, ok := input.Schema.JSONValue.(map[string]JSON); ok {
+		// We need to apply the keywords with the order in the vocabulary.
+		// We also need to ignore any unknown keywords.
+		keywords := map[string]struct{}{}
+		for name := range schema {
+			keywords[name] = struct{}{}
 		}
-	}
-	return nil, false
-}
+		// We now have a set of present keywords in the schema object.
+		// Process them in the vocabulary order.
+		for _, keyword := range c.Vocabulary.Keywords {
+			k := keyword.Keyword()
+			// keyword not found in this schema object.
+			// Skip to the next keyword.
+			if _, ok := keywords[k]; !ok {
+				continue
+			}
+			// Remove processed keywords.
+			delete(keywords, k)
+			childInput := Node{
+				Valid:                   true,
+				Parent:                  &input,
+				Instance:                input.Instance,
+				InstanceLocation:        input.InstanceLocation,
+				Schema:                  schema[k],
+				Keyword:                 k,
+				KeywordLocation:         input.KeywordLocation.AddReferenceToken(k),
+				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(k),
+			}
+			child, err := keyword.Apply(c, childInput)
+			if err != nil {
+				return nil, err
+			}
 
-func (c ApplicationContext) GetAnnotation(annotator Annotator) (*Annotation, bool) {
-	keyword := annotator.Keyword()
-	var annotations []Annotation
-	for _, a := range c.Annotations {
-		if reflect.DeepEqual(c.InstanceLocation, a.InstanceLocation) && keyword == a.Keyword {
-			annotations = append(annotations, a)
+			if !child.Valid {
+				input.Valid = false
+			}
+			input.Children = append(input.Children, *child)
 		}
+		// We now have a set of unknown keywords in the schema object.
+		// Ignore them by assuming valid.
+		for keyword := range keywords {
+			child := Node{
+				Valid:                   true,
+				Parent:                  &input,
+				Instance:                input.Instance,
+				InstanceLocation:        input.InstanceLocation,
+				Schema:                  schema[keyword],
+				Keyword:                 keyword,
+				KeywordLocation:         input.KeywordLocation.AddReferenceToken(keyword),
+				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(keyword),
+			}
+			input.Children = append(input.Children, child)
+		}
+
+		return &input, nil
 	}
-	if len(annotations) <= 0 {
-		return nil, false
-	} else if len(annotations) == 1 {
-		return &annotations[0], true
-	}
-	return annotator.MergeAnnotations(annotations)
+
+	// The schema is neither boolean nor object.
+	return nil, ErrNotASchema
 }

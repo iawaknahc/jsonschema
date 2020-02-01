@@ -9,38 +9,32 @@ type ExclusiveMaximum struct {
 	Actual           json.Number `json:"actual"`
 }
 
-var _ Keyworder = ExclusiveMaximum{}
-var _ Applicator = ExclusiveMaximum{}
+var _ Keyword = ExclusiveMaximum{}
 
 func (_ ExclusiveMaximum) Keyword() string {
 	return "exclusiveMaximum"
 }
 
-func (_ ExclusiveMaximum) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	num, ok := ctx.Instance.(json.Number)
+func (_ ExclusiveMaximum) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	num, ok := input.Instance.(json.Number)
 	if !ok {
-		return
+		return &input, nil
 	}
-	limit := ctx.Schema.JSONValue.(json.Number)
+	limit := input.Schema.JSONValue.(json.Number)
 	numf, err := num.Float64()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	limitf, err := limit.Float64()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	if numf >= limitf {
-		errors = append(errors, Error{
-			Keyword:                 ctx.Keyword,
-			InstanceLocation:        ctx.InstanceLocation,
-			KeywordLocation:         ctx.KeywordLocation,
-			AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-			Value: ExclusiveMaximum{
-				ExclusiveMaximum: limit,
-				Actual:           num,
-			},
-		})
+		input.Valid = false
+		input.Info = ExclusiveMaximum{
+			ExclusiveMaximum: limit,
+			Actual:           num,
+		}
 	}
-	return
+	return &input, nil
 }

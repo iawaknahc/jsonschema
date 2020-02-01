@@ -1,14 +1,23 @@
 package jsonschema
 
-type Not struct{}
+type Else struct{}
 
-var _ Keyword = Not{}
+var _ Keyword = Else{}
 
-func (_ Not) Keyword() string {
-	return "not"
+func (_ Else) Keyword() string {
+	return "else"
 }
 
-func (_ Not) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+func (_ Else) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	a, ok := input.GetAnnotationsFromAdjacentKeywords(If{})
+	if !ok {
+		return &input, nil
+	}
+
+	if a.(bool) {
+		return &input, nil
+	}
+
 	childInput := Node{
 		Valid:                   true,
 		Parent:                  &input,
@@ -22,7 +31,7 @@ func (_ Not) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	input.Valid = !child.Valid
+	input.Valid = child.Valid
 	input.Children = append(input.Children, *child)
 	return &input, nil
 }

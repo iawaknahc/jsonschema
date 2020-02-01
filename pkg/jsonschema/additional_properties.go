@@ -2,27 +2,26 @@ package jsonschema
 
 type AdditionalProperties struct{}
 
-var _ Keyworder = AdditionalProperties{}
-var _ Applicator = AdditionalProperties{}
+var _ Keyword = AdditionalProperties{}
 
 func (_ AdditionalProperties) Keyword() string {
 	return "additionalProperties"
 }
 
-func (_ AdditionalProperties) Apply(ctx ApplicationContext) (annotations []Annotation, errors []Error) {
-	obj, ok := ctx.Instance.(map[string]interface{})
+func (_ AdditionalProperties) Apply(ctx ApplicationContext, input Node) (*Node, error) {
+	obj, ok := input.Instance.(map[string]interface{})
 	if !ok {
-		return
+		return &input, nil
 	}
 
 	processedNames := map[string]struct{}{}
-	if a, ok := ctx.GetAnnotation(Properties{}); ok {
-		for name := range a.Value.(map[string]struct{}) {
+	if a, ok := input.GetAnnotationsFromAdjacentKeywords(Properties{}); ok {
+		for name := range a.(map[string]struct{}) {
 			processedNames[name] = struct{}{}
 		}
 	}
-	if a, ok := ctx.GetAnnotation(PatternProperties{}); ok {
-		for name := range a.Value.(map[string]struct{}) {
+	if a, ok := input.GetAnnotationsFromAdjacentKeywords(PatternProperties{}); ok {
+		for name := range a.(map[string]struct{}) {
 			processedNames[name] = struct{}{}
 		}
 	}
@@ -34,21 +33,26 @@ func (_ AdditionalProperties) Apply(ctx ApplicationContext) (annotations []Annot
 			continue
 		}
 		additionalPropertiesName[name] = struct{}{}
-		c := ctx
-		c.Instance = val
-		c.InstanceLocation = c.InstanceLocation.AddReferenceToken(name)
-		childA, childE := c.Apply()
-		annotations = append(annotations, childA...)
-		errors = append(errors, childE...)
+		childInput := Node{
+			Valid:                   true,
+			Parent:                  &input,
+			Instance:                val,
+			InstanceLocation:        input.InstanceLocation.AddReferenceToken(name),
+			Schema:                  input.Schema,
+			KeywordLocation:         input.KeywordLocation,
+			AbsoluteKeywordLocation: input.AbsoluteKeywordLocation,
+		}
+		child, err := ctx.Apply(childInput)
+		if err != nil {
+			return nil, err
+		}
+		if !child.Valid {
+			input.Valid = false
+		}
+		input.Children = append(input.Children, *child)
 	}
 
-	annotations = append(annotations, Annotation{
-		InstanceLocation:        ctx.InstanceLocation,
-		Keyword:                 ctx.Keyword,
-		KeywordLocation:         ctx.KeywordLocation,
-		AbsoluteKeywordLocation: ctx.AbsoluteKeywordLocation,
-		Value:                   additionalPropertiesName,
-	})
+	input.Annotation = additionalPropertiesName
 
-	return
+	return &input, nil
 }
