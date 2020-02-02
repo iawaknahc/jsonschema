@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/iawaknahc/jsonschema/pkg/jsonpointer"
 )
@@ -192,8 +193,9 @@ func (c *Collection) Apply(u string, r io.Reader) (node *Node, err error) {
 	}
 
 	ctx := ApplicationContext{
-		Collection: c,
-		Vocabulary: DefaultVocabulary,
+		Collection:   c,
+		Vocabulary:   DefaultVocabulary,
+		PatternCache: &sync.Map{},
 	}
 
 	input := Node{

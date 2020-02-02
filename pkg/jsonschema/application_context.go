@@ -1,7 +1,9 @@
 package jsonschema
 
 import (
+	"regexp"
 	"strings"
+	"sync"
 )
 
 type ErrCircularReference struct {
@@ -20,6 +22,28 @@ type ApplicationContext struct {
 	Collection         *Collection
 	Vocabulary         Vocabulary
 	ReferencedLocation []Location
+	PatternCache       *sync.Map
+}
+
+func (c ApplicationContext) CompilePattern(pattern string) (*regexp.Regexp, error) {
+	value, ok := c.PatternCache.Load(pattern)
+	if ok {
+		switch v := value.(type) {
+		case *regexp.Regexp:
+			return v, nil
+		case error:
+			return nil, v
+		default:
+			panic("unreachable")
+		}
+	}
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		c.PatternCache.Store(pattern, err)
+	} else {
+		c.PatternCache.Store(pattern, re)
+	}
+	return re, err
 }
 
 var handledKeywords map[string]struct{} = map[string]struct{}{

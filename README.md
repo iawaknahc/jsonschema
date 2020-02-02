@@ -1,3 +1,8 @@
+# Caveat
+
+The regular expression syntax is not EMCA 262 but [RE2](https://golang.org/s/re2syntax).
+This effects the keywords `patternProperties` and `pattern`.
+
 # Output
 
 - [x] Flag
@@ -49,7 +54,7 @@
 - [x] exclusiveMinimum
 - [x] maxLength
 - [x] minLength
-- [ ] pattern
+- [x] pattern
 - [x] maxItems
 - [x] minItems
 - [ ] uniqueItems

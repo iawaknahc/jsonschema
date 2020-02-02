@@ -1,9 +1,5 @@
 package jsonschema
 
-import (
-	"regexp"
-)
-
 type PatternProperties struct{}
 
 var _ Keyword = PatternProperties{}
@@ -36,7 +32,7 @@ func (_ PatternProperties) Apply(ctx ApplicationContext, input Node) (*Node, err
 
 	patternPropertiesName := map[string]struct{}{}
 	for pattern, schema := range input.Schema.JSONValue.(map[string]JSON) {
-		re, err := regexp.Compile(pattern)
+		re, err := ctx.CompilePattern(pattern)
 		if err != nil {
 			return nil, err
 		}

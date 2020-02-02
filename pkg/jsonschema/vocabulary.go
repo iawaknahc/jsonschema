@@ -26,6 +26,7 @@ var DefaultVocabulary = Vocabulary{
 		MinItems{},
 		MaxLength{},
 		MinLength{},
+		Pattern{},
 		MultipleOf{},
 		Maximum{},
 		ExclusiveMaximum{},

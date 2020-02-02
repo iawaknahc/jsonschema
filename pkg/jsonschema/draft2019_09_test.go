@@ -183,6 +183,10 @@ func TestMinLength(t *testing.T) {
 	test(t, "draft2019-09/minLength.json")
 }
 
+func TestPattern(t *testing.T) {
+	test(t, "draft2019-09/pattern.json")
+}
+
 func TestAllOf(t *testing.T) {
 	test(t, "draft2019-09/allOf.json")
 }
