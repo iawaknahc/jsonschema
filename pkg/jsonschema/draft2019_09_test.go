@@ -143,6 +143,14 @@ func TestPropertyNames(t *testing.T) {
 	test(t, "draft2019-09/propertyNames.json")
 }
 
+func TestMaxProperties(t *testing.T) {
+	test(t, "draft2019-09/maxProperties.json")
+}
+
+func TestMinProperties(t *testing.T) {
+	test(t, "draft2019-09/minProperties.json")
+}
+
 func TestItems(t *testing.T) {
 	test(t, "draft2019-09/items.json")
 }

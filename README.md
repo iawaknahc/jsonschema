@@ -55,8 +55,8 @@
 - [ ] uniqueItems
 - [ ] maxContains (no test in official test suite yet)
 - [ ] minContains (no test in official test suite yet)
-- [ ] maxProperties
-- [ ] minProperties
+- [x] maxProperties
+- [x] minProperties
 - [x] required
 - [ ] dependentRequired (no test in official test suite yet)
 
