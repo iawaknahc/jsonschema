@@ -73,3 +73,7 @@ This effects the keywords `patternProperties` and `pattern`.
 - [ ] readOnly
 - [ ] writeOnly
 - [ ] examples
+
+- [ ] contentEncoding
+- [ ] contentMediaType
+- [ ] contentSchema
