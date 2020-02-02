@@ -40,6 +40,8 @@ var DefaultVocabulary = Vocabulary{
 		PropertyNames{},
 		MaxProperties{},
 		MinProperties{},
+
+		Format{},
 		// Keywords that must be processed before in-place applicators.
 		// The order within the group is also important.
 		// The properties group.

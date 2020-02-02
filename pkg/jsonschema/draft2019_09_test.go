@@ -191,6 +191,14 @@ func TestPattern(t *testing.T) {
 	test(t, "draft2019-09/pattern.json")
 }
 
+func TestFormat(t *testing.T) {
+	test(t, "draft2019-09/format.json")
+}
+
+func TestFormatIPv4(t *testing.T) {
+	test(t, "draft2019-09/optional/format/ipv4.json")
+}
+
 func TestAllOf(t *testing.T) {
 	test(t, "draft2019-09/allOf.json")
 }

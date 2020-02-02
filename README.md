@@ -65,7 +65,7 @@ This effects the keywords `patternProperties` and `pattern`.
 - [x] required
 - [ ] dependentRequired (no test in official test suite yet)
 
-- [ ] format
+- [x] format
   - [ ] date-time
   - [ ] date
   - [ ] time
@@ -74,7 +74,7 @@ This effects the keywords `patternProperties` and `pattern`.
   - [ ] idn-email
   - [ ] hostname
   - [ ] idn-hostname
-  - [ ] ipv4
+  - [x] ipv4
   - [ ] ipv6
   - [ ] uri
   - [ ] uri-reference

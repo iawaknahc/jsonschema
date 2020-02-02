@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/iawaknahc/jsonschema/pkg/jsonpointer"
+	"github.com/iawaknahc/jsonschema/pkg/jsonschema/format"
 )
 
 // ErrSchemaNotFound occurs when the schema cannot be found.
@@ -22,13 +23,19 @@ var ErrNotASchema = errors.New("not a schema")
 
 // Collection is a collection of schemas that can reference each other.
 type Collection struct {
-	Index map[string]JSON
+	Index         map[string]JSON
+	FormatChecker map[string]format.FormatChecker
 }
 
 // NewCollection creates a new Collection.
 func NewCollection() *Collection {
+	checker := map[string]format.FormatChecker{}
+	for k, v := range format.DefaultChecker {
+		checker[k] = v
+	}
 	return &Collection{
-		Index: map[string]JSON{},
+		Index:         map[string]JSON{},
+		FormatChecker: checker,
 	}
 }
 
