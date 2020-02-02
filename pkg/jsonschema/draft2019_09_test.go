@@ -210,3 +210,7 @@ func TestIfThenElse(t *testing.T) {
 func TestBignum(t *testing.T) {
 	test(t, "draft2019-09/optional/bignum.json")
 }
+
+func TestZeroTerminatedFloats(t *testing.T) {
+	test(t, "draft2019-09/optional/zeroTerminatedFloats.json")
+}

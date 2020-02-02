@@ -2,7 +2,8 @@ package jsonschema
 
 import (
 	"encoding/json"
-	"strings"
+
+	"github.com/cockroachdb/apd"
 )
 
 type Type struct {
@@ -44,10 +45,19 @@ func (_ Type) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	case []interface{}:
 		actual = append(actual, "array")
 	case json.Number:
-		if strings.ContainsRune(string(d), '.') {
-			actual = append(actual, "number")
-		} else {
+		decimal, _, err := apd.NewFromString(string(d))
+		if err != nil {
+			return nil, err
+		}
+		res, err := apd.BaseContext.RoundToIntegralExact(decimal, decimal)
+		if err != nil {
+			return nil, err
+		}
+		integer := !res.Inexact()
+		if integer {
 			actual = append(actual, "number", "integer")
+		} else {
+			actual = append(actual, "number")
 		}
 	}
 
