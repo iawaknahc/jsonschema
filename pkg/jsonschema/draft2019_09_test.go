@@ -206,3 +206,7 @@ func TestNot(t *testing.T) {
 func TestIfThenElse(t *testing.T) {
 	test(t, "draft2019-09/if-then-else.json")
 }
+
+func TestBignum(t *testing.T) {
+	test(t, "draft2019-09/optional/bignum.json")
+}
