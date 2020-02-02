@@ -135,6 +135,10 @@ func TestExclusiveMinimum(t *testing.T) {
 	test(t, "draft2019-09/exclusiveMinimum.json")
 }
 
+func TestPropertyNames(t *testing.T) {
+	test(t, "draft2019-09/propertyNames.json")
+}
+
 func TestItems(t *testing.T) {
 	test(t, "draft2019-09/items.json")
 }

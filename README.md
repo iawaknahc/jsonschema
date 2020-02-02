@@ -37,7 +37,7 @@
 - [x] patternProperties
 - [x] additionalProperties
 - [ ] unevaluatedProperties
-- [ ] propertyNames
+- [x] propertyNames
 
 - [x] type
 - [ ] enum

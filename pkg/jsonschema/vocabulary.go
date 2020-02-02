@@ -30,6 +30,7 @@ var DefaultVocabulary = Vocabulary{
 		ExclusiveMaximum{},
 		Minimum{},
 		ExclusiveMinimum{},
+		PropertyNames{},
 		// Keywords that must be processed before in-place applicators.
 		// The order within the group is also important.
 		// The properties group.
