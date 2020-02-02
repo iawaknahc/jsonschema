@@ -40,7 +40,7 @@
 - [x] propertyNames
 
 - [x] type
-- [ ] enum
+- [x] enum
 - [x] const
 - [x] multipleOf
 - [x] maximum

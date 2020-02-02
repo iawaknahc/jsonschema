@@ -20,6 +20,7 @@ var DefaultVocabulary = Vocabulary{
 		// Their order is unimportant.
 		Type{},
 		Const{},
+		Enum{},
 		Required{},
 		MaxItems{},
 		MinItems{},

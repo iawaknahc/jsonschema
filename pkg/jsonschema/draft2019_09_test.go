@@ -107,6 +107,10 @@ func TestConst(t *testing.T) {
 	test(t, "draft2019-09/const.json")
 }
 
+func TestEnum(t *testing.T) {
+	test(t, "draft2019-09/enum.json")
+}
+
 func TestMaxItems(t *testing.T) {
 	test(t, "draft2019-09/maxItems.json")
 }
