@@ -57,7 +57,7 @@ This effects the keywords `patternProperties` and `pattern`.
 - [x] pattern
 - [x] maxItems
 - [x] minItems
-- [ ] uniqueItems
+- [x] uniqueItems
 - [ ] maxContains (no test in official test suite yet)
 - [ ] minContains (no test in official test suite yet)
 - [x] maxProperties

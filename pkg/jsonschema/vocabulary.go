@@ -21,17 +21,22 @@ var DefaultVocabulary = Vocabulary{
 		Type{},
 		Const{},
 		Enum{},
-		Required{},
+
 		MaxItems{},
 		MinItems{},
+		UniqueItems{},
+
 		MaxLength{},
 		MinLength{},
 		Pattern{},
+
 		MultipleOf{},
 		Maximum{},
 		ExclusiveMaximum{},
 		Minimum{},
 		ExclusiveMinimum{},
+
+		Required{},
 		PropertyNames{},
 		MaxProperties{},
 		MinProperties{},
