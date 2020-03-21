@@ -223,10 +223,18 @@ func TestIfThenElse(t *testing.T) {
 	test(t, "draft2019-09/if-then-else.json")
 }
 
+func TestDefault(t *testing.T) {
+	test(t, "draft2019-09/default.json")
+}
+
 func TestBignum(t *testing.T) {
 	test(t, "draft2019-09/optional/bignum.json")
 }
 
 func TestZeroTerminatedFloats(t *testing.T) {
 	test(t, "draft2019-09/optional/zeroTerminatedFloats.json")
+}
+
+func TestRefOfUnknownKeyword(t *testing.T) {
+	test(t, "draft2019-09/optional/refOfUnknownKeyword.json")
 }
