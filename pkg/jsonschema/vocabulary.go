@@ -62,5 +62,6 @@ var DefaultVocabulary = Vocabulary{
 		If{},
 		Then{},
 		Else{},
+		DependentSchemas{},
 	},
 }

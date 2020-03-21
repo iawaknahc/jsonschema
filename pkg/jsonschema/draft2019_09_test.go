@@ -227,6 +227,10 @@ func TestIfThenElse(t *testing.T) {
 	test(t, "draft2019-09/if-then-else.json")
 }
 
+func TestDependentSchemas(t *testing.T) {
+	test(t, "draft2019-09/dependentSchemas.json")
+}
+
 func TestDefault(t *testing.T) {
 	test(t, "draft2019-09/default.json")
 }

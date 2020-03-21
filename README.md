@@ -31,7 +31,7 @@ This effects the keywords `patternProperties` and `pattern`.
 - [x] if
 - [x] then
 - [x] else
-- [ ] dependentSchemas (no test in official test suite yet)
+- [x] dependentSchemas
 
 - [x] items
 - [x] additionalItems
