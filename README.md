@@ -63,7 +63,7 @@ This effects the keywords `patternProperties` and `pattern`.
 - [x] maxProperties
 - [x] minProperties
 - [x] required
-- [ ] dependentRequired (no test in official test suite yet)
+- [x] dependentRequired
 
 - [x] format
   - [ ] date-time

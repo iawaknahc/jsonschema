@@ -39,6 +39,7 @@ var DefaultVocabulary = Vocabulary{
 		ExclusiveMinimum{},
 
 		Required{},
+		DependentRequired{},
 		PropertyNames{},
 		MaxProperties{},
 		MinProperties{},

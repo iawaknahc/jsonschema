@@ -183,6 +183,10 @@ func TestRequired(t *testing.T) {
 	test(t, "draft2019-09/required.json")
 }
 
+func TestDependentRequired(t *testing.T) {
+	test(t, "draft2019-09/dependentRequired.json")
+}
+
 func TestMaxLength(t *testing.T) {
 	test(t, "draft2019-09/maxLength.json")
 }
