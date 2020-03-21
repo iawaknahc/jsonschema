@@ -119,6 +119,10 @@ func TestMinItems(t *testing.T) {
 	test(t, "draft2019-09/minItems.json")
 }
 
+func TestContains(t *testing.T) {
+	test(t, "draft2019-09/contains.json")
+}
+
 func TestUniqueItems(t *testing.T) {
 	test(t, "draft2019-09/uniqueItems.json")
 }

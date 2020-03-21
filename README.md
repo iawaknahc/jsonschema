@@ -36,7 +36,7 @@ This effects the keywords `patternProperties` and `pattern`.
 - [x] items
 - [x] additionalItems
 - [ ] unevaluatedItems (no test in official test suite yet)
-- [ ] contains
+- [x] contains
 
 - [x] properties
 - [x] patternProperties
