@@ -2,21 +2,34 @@ package jsonschema
 
 import (
 	"encoding/json"
+	"os"
 	"strings"
 	"testing"
 )
 
-func OutputNodeEqual(actual OutputNode, expected OutputNode) bool {
+func Print(t *testing.T, msg string, actual OutputNode, expected OutputNode) {
+	t.Errorf("%s", msg)
+	b, _ := json.MarshalIndent(actual, "", "  ")
+	t.Errorf("actual: %s", string(b))
+	b, _ = json.MarshalIndent(expected, "", "  ")
+	t.Errorf("expected: %s", string(b))
+}
+
+func OutputNodeEqual(t *testing.T, actual OutputNode, expected OutputNode) bool {
 	if actual.Valid != expected.Valid {
+		Print(t, "valid", actual, expected)
 		return false
 	}
 	if actual.KeywordLocation != expected.KeywordLocation {
+		Print(t, "keywordLocation", actual, expected)
 		return false
 	}
 	if actual.InstanceLocation != expected.InstanceLocation {
+		Print(t, "instanceLocation", actual, expected)
 		return false
 	}
 	if expected.AbsoluteKeywordLocation != "" && actual.AbsoluteKeywordLocation != expected.AbsoluteKeywordLocation {
+		Print(t, "absoluteKeywordLocation", actual, expected)
 		return false
 	}
 
@@ -27,13 +40,14 @@ func OutputNodeEqual(actual OutputNode, expected OutputNode) bool {
 		for _, e := range expected.Errors {
 			if keywordLocation == e.KeywordLocation && instanceLocation == e.InstanceLocation {
 				numErrors++
-				if !OutputNodeEqual(a, e) {
+				if !OutputNodeEqual(t, a, e) {
 					return false
 				}
 			}
 		}
 	}
 	if numErrors < len(expected.Errors) {
+		Print(t, "errors", actual, expected)
 		return false
 	}
 
@@ -44,13 +58,14 @@ func OutputNodeEqual(actual OutputNode, expected OutputNode) bool {
 		for _, e := range expected.Annotations {
 			if keywordLocation == e.KeywordLocation && instanceLocation == e.InstanceLocation {
 				numAnnotations++
-				if !OutputNodeEqual(a, e) {
+				if !OutputNodeEqual(t, a, e) {
 					return false
 				}
 			}
 		}
 	}
 	if numAnnotations < len(expected.Annotations) {
+		Print(t, "annotations", actual, expected)
 		return false
 	}
 
@@ -75,42 +90,15 @@ func TestVerboseSimple(t *testing.T) {
 		"disallowedProp": "value"
 	}
 	`
-	expectedStr := `
-	{
-		"valid": false,
-		"keywordLocation": "#",
-		"instanceLocation": "#",
-		"errors": [
-		{
-			"valid": true,
-			"keywordLocation": "#/type",
-			"instanceLocation": "#"
-		},
-		{
-			"valid": true,
-			"keywordLocation": "#/properties",
-			"instanceLocation": "#"
-		},
-		{
-			"valid": false,
-			"keywordLocation": "#/additionalProperties",
-			"instanceLocation": "#",
-			"errors": [
-			{
-				"valid": false,
-				"keywordLocation": "#/additionalProperties",
-				"instanceLocation": "#/disallowedProp",
-				"error": "Additional property 'disallowedProp' found but was invalid."
-			}
-			]
-		}
-		]
-	}
-	`
+	expectedFile := "output_verbose_simple.json"
 
 	var err error
 	var expected OutputNode
-	err = json.Unmarshal([]byte(expectedStr), &expected)
+	f, err := os.Open(expectedFile)
+	if err != nil {
+		t.Fatalf("failed to open file: %v", err)
+	}
+	err = json.NewDecoder(f).Decode(&expected)
 	if err != nil {
 		t.Fatalf("failed to unmarshal expected: %v", err)
 	}
@@ -126,9 +114,7 @@ func TestVerboseSimple(t *testing.T) {
 	}
 	actual := node.Verbose()
 
-	if !OutputNodeEqual(actual, expected) {
-		t.Fatalf("actual != expected")
-	}
+	OutputNodeEqual(t, actual, expected)
 }
 
 func TestVerbose(t *testing.T) {
@@ -164,142 +150,15 @@ func TestVerbose(t *testing.T) {
 	}
 	]
 	`
-	expectedStr := `
-	{
-		"valid": false,
-		"keywordLocation": "#",
-		"instanceLocation": "#",
-		"errors": [
-		{
-			"valid": true,
-			"keywordLocation": "#/$defs",
-			"instanceLocation": "#"
-		},
-		{
-			"valid": true,
-			"keywordLocation": "#/type",
-			"instanceLocation": "#"
-		},
-		{
-			"valid": false,
-			"keywordLocation": "#/items",
-			"instanceLocation": "#",
-			"errors": [
-			{
-				"valid": true,
-				"keywordLocation": "#/items/$ref",
-				"absoluteKeywordLocation":
-				"https://example.com/polygon#/items/$ref",
-				"instanceLocation": "#/0",
-				"annotations": [
-				{
-					"valid": true,
-					"keywordLocation": "#/items/$ref",
-					"absoluteKeywordLocation":
-					"https://example.com/polygon#/$defs/point",
-					"instanceLocation": "#/0",
-					"annotations": [
-					{
-						"valid": true,
-						"keywordLocation": "#/items/$ref/type",
-						"absoluteKeywordLocation":
-						"https://example.com/polygon#/$defs/point/type",
-						"instanceLocation": "#/0"
-					},
-					{
-						"valid": true,
-						"keywordLocation": "#/items/$ref/properties",
-						"absoluteKeywordLocation":
-						"https://example.com/polygon#/$defs/point/properties",
-						"instanceLocation": "#/0"
-					},
-					{
-						"valid": true,
-						"keywordLocation": "#/items/$ref/required",
-						"absoluteKeywordLocation":
-						"https://example.com/polygon#/$defs/point/required",
-						"instanceLocation": "#/0"
-					},
-					{
-						"valid": true,
-						"keywordLocation": "#/items/$ref/additionalProperties",
-						"absoluteKeywordLocation":
-						"https://example.com/polygon#/$defs/point/additionalProperties",
-						"instanceLocation": "#/0"
-					}
-					]
-				}
-				]
-			},
-			{
-				"valid": false,
-				"keywordLocation": "#/items/$ref",
-				"absoluteKeywordLocation":
-				"https://example.com/polygon#/items/$ref",
-				"instanceLocation": "#/1",
-				"errors": [
-				{
-					"valid": false,
-					"keywordLocation": "#/items/$ref",
-					"absoluteKeywordLocation":
-					"https://example.com/polygon#/$defs/point",
-					"instanceLocation": "#/1",
-					"errors": [
-					{
-						"valid": true,
-						"keywordLocation": "#/items/$ref/type",
-						"absoluteKeywordLocation":
-						"https://example.com/polygon#/$defs/point/type",
-						"instanceLocation": "#/1"
-					},
-					{
-						"valid": true,
-						"keywordLocation": "#/items/$ref/properties",
-						"absoluteKeywordLocation":
-						"https://example.com/polygon#/$defs/point/properties",
-						"instanceLocation": "#/1"
-					},
-					{
-						"valid": false,
-						"keywordLocation": "#/items/$ref/required",
-						"absoluteKeywordLocation":
-						"https://example.com/polygon#/$defs/point/required",
-						"instanceLocation": "#/1"
-					},
-					{
-						"valid": false,
-						"keywordLocation": "#/items/$ref/additionalProperties",
-						"absoluteKeywordLocation":
-						"https://example.com/polygon#/$defs/point/additionalProperties",
-						"instanceLocation": "#/1",
-						"errors": [
-						{
-							"valid": false,
-							"keywordLocation": "#/items/$ref/additionalProperties",
-							"absoluteKeywordLocation":
-							"https://example.com/polygon#/$defs/point/additionalProperties",
-							"instanceLocation": "#/1/z"
-						}
-						]
-					}
-					]
-				}
-				]
-			}
-			]
-		},
-		{
-			"valid": false,
-			"keywordLocation": "#/minItems",
-			"instanceLocation": "#"
-		}
-		]
-	}
-	`
+	expectedFile := "output_verbose.json"
 
 	var err error
 	var expected OutputNode
-	err = json.Unmarshal([]byte(expectedStr), &expected)
+	f, err := os.Open(expectedFile)
+	if err != nil {
+		t.Fatalf("failed to open file: %v", err)
+	}
+	err = json.NewDecoder(f).Decode(&expected)
 	if err != nil {
 		t.Fatalf("failed to unmarshal expected: %v", err)
 	}
@@ -315,7 +174,5 @@ func TestVerbose(t *testing.T) {
 	}
 	actual := node.Verbose()
 
-	if !OutputNodeEqual(actual, expected) {
-		t.Fatalf("actual != expected")
-	}
+	OutputNodeEqual(t, actual, expected)
 }

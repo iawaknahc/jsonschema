@@ -19,10 +19,9 @@ func (e ErrCircularReference) Error() string {
 }
 
 type ApplicationContext struct {
-	Collection         *Collection
-	Vocabulary         Vocabulary
-	ReferencedLocation []Location
-	PatternCache       *sync.Map
+	Collection   *Collection
+	Vocabulary   Vocabulary
+	PatternCache *sync.Map
 }
 
 func (c ApplicationContext) CompilePattern(pattern string) (*regexp.Regexp, error) {
@@ -49,7 +48,6 @@ func (c ApplicationContext) CompilePattern(pattern string) (*regexp.Regexp, erro
 var handledKeywords map[string]struct{} = map[string]struct{}{
 	"$id":     {},
 	"$anchor": {},
-	"$ref":    {},
 	// TODO: Handle $schema
 	"$schema": {},
 	// TODO: Handle $vocabulary
@@ -57,57 +55,6 @@ var handledKeywords map[string]struct{} = map[string]struct{}{
 }
 
 func (c ApplicationContext) Apply(input Node) (*Node, error) {
-	// Handle $ref
-	if obj, ok := input.Schema.JSONValue.(map[string]JSON); ok {
-		if ref, ok := obj["$ref"].JSONValue.(string); ok {
-			u, err := input.Schema.BaseURI.Parse(ref)
-			if err != nil {
-				return nil, err
-			}
-			referencedSchema, err := c.Collection.GetSchema(u.String())
-			if err != nil {
-				return nil, err
-			}
-			location := Location{
-				BaseURI:     referencedSchema.BaseURI,
-				JSONPointer: referencedSchema.CanonicalLocation,
-			}
-			childInput := Node{
-				Valid:                   true,
-				Parent:                  &input,
-				Instance:                input.Instance,
-				InstanceLocation:        input.InstanceLocation,
-				Schema:                  *referencedSchema,
-				KeywordLocation:         input.KeywordLocation.AddReferenceToken("$ref"),
-				AbsoluteKeywordLocation: location,
-			}
-
-			// Detect cycle.
-			for _, l := range c.ReferencedLocation {
-				if l.String() == location.String() {
-					return nil, ErrCircularReference{
-						Locations: c.ReferencedLocation,
-					}
-				}
-			}
-			c.ReferencedLocation = append(c.ReferencedLocation, location)
-
-			child, err := c.Apply(childInput)
-			if err != nil {
-				return nil, err
-			}
-
-			input.Valid = child.Valid
-			input.Children = append(input.Children, *child)
-			input.KeywordLocation = input.KeywordLocation.AddReferenceToken("$ref")
-			input.AbsoluteKeywordLocation = input.AbsoluteKeywordLocation.AddReferenceToken("$ref")
-			input.Keyword = "$ref"
-
-			return &input, nil
-		}
-	}
-	c.ReferencedLocation = nil
-
 	// Handle boolean schema
 	if b, ok := input.Schema.JSONValue.(bool); ok {
 		input.Valid = b

@@ -1,0 +1,30 @@
+{
+    "valid": false,
+    "keywordLocation": "#",
+    "instanceLocation": "#",
+    "errors": [
+        {
+            "valid": true,
+            "keywordLocation": "#/type",
+            "instanceLocation": "#"
+        },
+        {
+            "valid": true,
+            "keywordLocation": "#/properties",
+            "instanceLocation": "#"
+        },
+        {
+            "valid": false,
+            "keywordLocation": "#/additionalProperties",
+            "instanceLocation": "#",
+            "errors": [
+                {
+                    "valid": false,
+                    "keywordLocation": "#/additionalProperties",
+                    "instanceLocation": "#/disallowedProp",
+                    "error": "Additional property 'disallowedProp' found but was invalid."
+                }
+            ]
+        }
+    ]
+}
