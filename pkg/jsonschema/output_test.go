@@ -188,37 +188,43 @@ func TestVerbose(t *testing.T) {
 			{
 				"valid": true,
 				"keywordLocation": "#/items/$ref",
-				"absoluteKeywordLocation": "https://example.com/polygon#/items/$ref",
+				"absoluteKeywordLocation":
+				"https://example.com/polygon#/items/$ref",
 				"instanceLocation": "#/0",
 				"annotations": [
 				{
 					"valid": true,
 					"keywordLocation": "#/items/$ref",
-					"absoluteKeywordLocation": "https://example.com/polygon#/$defs/point",
+					"absoluteKeywordLocation":
+					"https://example.com/polygon#/$defs/point",
 					"instanceLocation": "#/0",
 					"annotations": [
 					{
 						"valid": true,
 						"keywordLocation": "#/items/$ref/type",
-						"absoluteKeywordLocation": "https://example.com/polygon#/$defs/point/type",
+						"absoluteKeywordLocation":
+						"https://example.com/polygon#/$defs/point/type",
 						"instanceLocation": "#/0"
 					},
 					{
 						"valid": true,
 						"keywordLocation": "#/items/$ref/properties",
-						"absoluteKeywordLocation": "https://example.com/polygon#/$defs/point/properties",
+						"absoluteKeywordLocation":
+						"https://example.com/polygon#/$defs/point/properties",
 						"instanceLocation": "#/0"
 					},
 					{
 						"valid": true,
 						"keywordLocation": "#/items/$ref/required",
-						"absoluteKeywordLocation": "https://example.com/polygon#/$defs/point/required",
+						"absoluteKeywordLocation":
+						"https://example.com/polygon#/$defs/point/required",
 						"instanceLocation": "#/0"
 					},
 					{
 						"valid": true,
 						"keywordLocation": "#/items/$ref/additionalProperties",
-						"absoluteKeywordLocation": "https://example.com/polygon#/$defs/point/additionalProperties",
+						"absoluteKeywordLocation":
+						"https://example.com/polygon#/$defs/point/additionalProperties",
 						"instanceLocation": "#/0"
 					}
 					]
@@ -228,43 +234,50 @@ func TestVerbose(t *testing.T) {
 			{
 				"valid": false,
 				"keywordLocation": "#/items/$ref",
-				"absoluteKeywordLocation": "https://example.com/polygon#/items/$ref",
+				"absoluteKeywordLocation":
+				"https://example.com/polygon#/items/$ref",
 				"instanceLocation": "#/1",
 				"errors": [
 				{
 					"valid": false,
 					"keywordLocation": "#/items/$ref",
-					"absoluteKeywordLocation": "https://example.com/polygon#/$defs/point",
+					"absoluteKeywordLocation":
+					"https://example.com/polygon#/$defs/point",
 					"instanceLocation": "#/1",
 					"errors": [
 					{
 						"valid": true,
 						"keywordLocation": "#/items/$ref/type",
-						"absoluteKeywordLocation": "https://example.com/polygon#/$defs/point/type",
+						"absoluteKeywordLocation":
+						"https://example.com/polygon#/$defs/point/type",
 						"instanceLocation": "#/1"
 					},
 					{
 						"valid": true,
 						"keywordLocation": "#/items/$ref/properties",
-						"absoluteKeywordLocation": "https://example.com/polygon#/$defs/point/properties",
+						"absoluteKeywordLocation":
+						"https://example.com/polygon#/$defs/point/properties",
 						"instanceLocation": "#/1"
 					},
 					{
 						"valid": false,
 						"keywordLocation": "#/items/$ref/required",
-						"absoluteKeywordLocation": "https://example.com/polygon#/$defs/point/required",
+						"absoluteKeywordLocation":
+						"https://example.com/polygon#/$defs/point/required",
 						"instanceLocation": "#/1"
 					},
 					{
 						"valid": false,
 						"keywordLocation": "#/items/$ref/additionalProperties",
-						"absoluteKeywordLocation": "https://example.com/polygon#/$defs/point/additionalProperties",
+						"absoluteKeywordLocation":
+						"https://example.com/polygon#/$defs/point/additionalProperties",
 						"instanceLocation": "#/1",
 						"errors": [
 						{
 							"valid": false,
 							"keywordLocation": "#/items/$ref/additionalProperties",
-							"absoluteKeywordLocation": "https://example.com/polygon#/$defs/point/additionalProperties",
+							"absoluteKeywordLocation":
+							"https://example.com/polygon#/$defs/point/additionalProperties",
 							"instanceLocation": "#/1/z"
 						}
 						]
