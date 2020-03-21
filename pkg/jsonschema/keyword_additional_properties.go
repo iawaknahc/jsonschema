@@ -3,9 +3,25 @@ package jsonschema
 type AdditionalProperties struct{}
 
 var _ Keyword = AdditionalProperties{}
+var _ AnnotatingKeyword = AdditionalProperties{}
 
 func (_ AdditionalProperties) Keyword() string {
 	return "additionalProperties"
+}
+
+func (_ AdditionalProperties) CombineAnnotations(values []interface{}) (interface{}, bool) {
+	if len(values) <= 0 {
+		return nil, false
+	}
+
+	merged := map[string]struct{}{}
+	for _, v := range values {
+		for name := range v.(map[string]struct{}) {
+			merged[name] = struct{}{}
+		}
+	}
+
+	return merged, true
 }
 
 func (_ AdditionalProperties) Apply(ctx ApplicationContext, input Node) (*Node, error) {
