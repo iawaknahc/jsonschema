@@ -10,19 +10,22 @@ func OutputNodeEqual(actual OutputNode, expected OutputNode) bool {
 	if actual.Valid != expected.Valid {
 		return false
 	}
-	if actual.KeywordLocation.String() != expected.KeywordLocation.String() {
+	if actual.KeywordLocation != expected.KeywordLocation {
 		return false
 	}
-	if actual.InstanceLocation.String() != expected.InstanceLocation.String() {
+	if actual.InstanceLocation != expected.InstanceLocation {
+		return false
+	}
+	if expected.AbsoluteKeywordLocation != "" && actual.AbsoluteKeywordLocation != expected.AbsoluteKeywordLocation {
 		return false
 	}
 
 	numErrors := 0
 	for _, a := range actual.Errors {
-		keywordLocation := a.KeywordLocation.String()
-		instanceLocation := a.InstanceLocation.String()
+		keywordLocation := a.KeywordLocation
+		instanceLocation := a.InstanceLocation
 		for _, e := range expected.Errors {
-			if keywordLocation == e.KeywordLocation.String() && instanceLocation == e.InstanceLocation.String() {
+			if keywordLocation == e.KeywordLocation && instanceLocation == e.InstanceLocation {
 				numErrors++
 				if !OutputNodeEqual(a, e) {
 					return false
@@ -36,10 +39,10 @@ func OutputNodeEqual(actual OutputNode, expected OutputNode) bool {
 
 	numAnnotations := 0
 	for _, a := range actual.Annotations {
-		keywordLocation := a.KeywordLocation.String()
-		instanceLocation := a.InstanceLocation.String()
+		keywordLocation := a.KeywordLocation
+		instanceLocation := a.InstanceLocation
 		for _, e := range expected.Annotations {
-			if keywordLocation == e.KeywordLocation.String() && instanceLocation == e.InstanceLocation.String() {
+			if keywordLocation == e.KeywordLocation && instanceLocation == e.InstanceLocation {
 				numAnnotations++
 				if !OutputNodeEqual(a, e) {
 					return false

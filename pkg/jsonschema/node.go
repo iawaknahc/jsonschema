@@ -6,19 +6,19 @@ import (
 
 type Node struct {
 	// Standard fields
-	Valid                   bool          `json:"valid"`
-	InstanceLocation        jsonpointer.T `json:"instanceLocation"`
-	KeywordLocation         jsonpointer.T `json:"keywordLocation"`
-	AbsoluteKeywordLocation Location      `json:"absoluteKeywordLocation"`
-	Annotation              interface{}   `json:"annotation,omitempty"`
-	Children                []Node        `json:"children,omitempty"`
+	Valid                   bool
+	InstanceLocation        jsonpointer.T
+	KeywordLocation         jsonpointer.T
+	AbsoluteKeywordLocation Location
+	Annotation              interface{}
+	Children                []Node
 	// Extra fields
-	Keyword string      `json:"keyword,omitempty"`
-	Info    interface{} `json:"info,omitempty"`
+	Keyword string
+	Info    interface{}
 	// Runtime fields
-	Parent   *Node       `json:"-"`
-	Schema   JSON        `json:"-"`
-	Instance interface{} `json:"-"`
+	Parent   *Node
+	Schema   JSON
+	Instance interface{}
 }
 
 func (n *Node) GetAnnotationsFromAdjacentKeywords(k AnnotatingKeyword) (interface{}, bool) {
@@ -40,9 +40,9 @@ func (n *Node) GetAnnotationsFromAdjacentKeywords(k AnnotatingKeyword) (interfac
 func (n *Node) Verbose() (out OutputNode) {
 	out = OutputNode{
 		Valid:                   n.Valid,
-		InstanceLocation:        n.InstanceLocation,
-		KeywordLocation:         n.KeywordLocation,
-		AbsoluteKeywordLocation: n.AbsoluteKeywordLocation,
+		InstanceLocation:        n.InstanceLocation.Fragment(),
+		KeywordLocation:         n.KeywordLocation.Fragment(),
+		AbsoluteKeywordLocation: n.AbsoluteKeywordLocation.String(),
 		Annotation:              n.Annotation,
 		Keyword:                 n.Keyword,
 		Info:                    n.Info,
