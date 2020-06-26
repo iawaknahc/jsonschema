@@ -207,6 +207,10 @@ func TestFragment(t *testing.T) {
 func TestZeroPointer(t *testing.T) {
 	var ptr T
 
+	if ptr.Last() != "" {
+		t.Errorf("zero Last() should be empty string")
+	}
+
 	if ptr.String() != "" {
 		t.Errorf("zero String() should be empty string")
 	}
@@ -230,6 +234,24 @@ func TestZeroPointer(t *testing.T) {
 	}
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestLast(t *testing.T) {
+	if T(nil).Last() != "" {
+		t.Errorf("Last() should return the last reference token")
+	}
+
+	if T([]string{}).Last() != "" {
+		t.Errorf("Last() should return the last reference token")
+	}
+
+	if T([]string{"a"}).Last() != "a" {
+		t.Errorf("Last() should return the last reference token")
+	}
+
+	if T([]string{"a", "b"}).Last() != "b" {
+		t.Errorf("Last() should return the last reference token")
 	}
 }
 

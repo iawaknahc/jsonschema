@@ -93,6 +93,15 @@ func MustParse(input string) T {
 	return t
 }
 
+// Last returns the last unencoded reference token.
+// If t is empty, empty string is returned.
+func (t T) Last() string {
+	if len(t) == 0 {
+		return ""
+	}
+	return t[len(t)-1]
+}
+
 // String returns the string representation.
 func (t T) String() string {
 	w := &strings.Builder{}
