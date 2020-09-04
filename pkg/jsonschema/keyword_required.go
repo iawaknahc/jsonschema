@@ -1,5 +1,9 @@
 package jsonschema
 
+import (
+	"sort"
+)
+
 type Required struct {
 	Expected []string `json:"expected"`
 	Actual   []string `json:"actual"`
@@ -37,6 +41,12 @@ func (_ Required) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 			missing = append(missing, name)
 		}
 	}
+
+	// Sort them to ensure the order is stable.
+	// It is very useful if this node is testing data.
+	sort.Strings(expected)
+	sort.Strings(actual)
+	sort.Strings(missing)
 
 	if len(missing) > 0 {
 		input.Valid = false

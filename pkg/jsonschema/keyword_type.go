@@ -2,6 +2,7 @@ package jsonschema
 
 import (
 	"encoding/json"
+	"sort"
 
 	"github.com/cockroachdb/apd"
 )
@@ -60,6 +61,11 @@ func (_ Type) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 			actual = append(actual, "number")
 		}
 	}
+
+	// Sort them to ensure the order is stable.
+	// It is very useful if this node is testing data.
+	sort.Strings(expected)
+	sort.Strings(actual)
 
 	intersection := intersectString(expected, actual)
 	if len(intersection) <= 0 {

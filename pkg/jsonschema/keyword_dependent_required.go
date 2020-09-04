@@ -1,5 +1,9 @@
 package jsonschema
 
+import (
+	"sort"
+)
+
 type DependentRequired struct {
 	Required map[string]Required
 }
@@ -25,6 +29,10 @@ func (_ DependentRequired) Apply(ctx ApplicationContext, input Node) (*Node, err
 		actualSet[name] = struct{}{}
 	}
 
+	// Sort it to ensure the order is stable.
+	// It is very useful if this node is testing data.
+	sort.Strings(actual)
+
 	for name, schema := range input.Schema.JSONValue.(map[string]JSON) {
 		_, ok := obj[name]
 		if !ok {
@@ -43,6 +51,11 @@ func (_ DependentRequired) Apply(ctx ApplicationContext, input Node) (*Node, err
 				missing = append(missing, requiredName)
 			}
 		}
+
+		// Sort them to ensure the order is stable.
+		// It is very useful if this node is testing data.
+		sort.Strings(expected)
+		sort.Strings(missing)
 
 		if len(missing) > 0 {
 			required[name] = Required{
