@@ -60,7 +60,7 @@ func test(t *testing.T, p string, skip ...string) {
 		if err != nil {
 			t.Fatalf("failed to marshal schema: %v", err)
 		}
-		collection := NewCollection()
+		collection := NewMetaschemaCollection()
 		err = collection.AddSchema(bytes.NewReader(schemaBytes), "")
 		if err != nil {
 			t.Fatalf("failed to add schema: %v", err)

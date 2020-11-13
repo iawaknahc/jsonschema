@@ -33,7 +33,7 @@ type Collection struct {
 	FormatChecker map[string]format.FormatChecker
 }
 
-// NewCollection creates a new Collection.
+// NewCollection creates an empty Collection.
 func NewCollection() *Collection {
 	checker := map[string]format.FormatChecker{}
 	for k, v := range format.DefaultChecker {
@@ -45,9 +45,61 @@ func NewCollection() *Collection {
 	}
 }
 
+// NewMetaschemaCollection creates a Collection that can be used to validate schemas.
+func NewMetaschemaCollection() *Collection {
+	checker := map[string]format.FormatChecker{}
+	for k, v := range format.DefaultChecker {
+		checker[k] = v
+	}
+	c := &Collection{
+		Index:         map[string]JSON{},
+		FormatChecker: checker,
+	}
+
+	var err error
+
+	err = c.AddSchema(strings.NewReader(MetaschemaJSONString), "")
+	if err != nil {
+		panic(err)
+	}
+
+	err = c.AddSchema(strings.NewReader(MetaCoreJSONString), "")
+	if err != nil {
+		panic(err)
+	}
+
+	err = c.AddSchema(strings.NewReader(MetaApplicatorJSONString), "")
+	if err != nil {
+		panic(err)
+	}
+
+	err = c.AddSchema(strings.NewReader(MetaValidationJSONString), "")
+	if err != nil {
+		panic(err)
+	}
+
+	err = c.AddSchema(strings.NewReader(MetaMetadataJSONString), "")
+	if err != nil {
+		panic(err)
+	}
+
+	err = c.AddSchema(strings.NewReader(MetaFormatJSONString), "")
+	if err != nil {
+		panic(err)
+	}
+
+	err = c.AddSchema(strings.NewReader(MetaContentJSONString), "")
+	if err != nil {
+		panic(err)
+	}
+
+	return c
+}
+
 // AddSchema adds the schema in r.
 // base specifies the root schema $id if $id is missing.
 func (c *Collection) AddSchema(r io.Reader, base string) (err error) {
+	// FIXME: Support adding metaschema, e.g. validate or ignore $vocabulary
 	plainSchema, err := DecodePlainJSON(r)
 	if err != nil {
 		return

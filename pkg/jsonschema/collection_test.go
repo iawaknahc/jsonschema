@@ -193,3 +193,7 @@ func TestAddSchemaAppendixA(t *testing.T) {
 		}
 	}
 }
+
+func TestNewMetaschemaCollection(t *testing.T) {
+	_ = NewMetaschemaCollection()
+}
