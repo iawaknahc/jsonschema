@@ -74,13 +74,16 @@ func test(t *testing.T, p string, skip ...string) {
 
 			node, err := collection.Apply(id, bytes.NewReader(dataBytes))
 			if err != nil {
-				t.Fatalf("%s: %s: unexpected error: %v", c.Description, test.Description, err)
-			}
-			if test.Valid && !node.Valid {
-				t.Fatalf("%s: %s: %+v", c.Description, test.Description, node)
-			}
-			if !test.Valid && node.Valid {
-				t.Fatalf("%s: %s", c.Description, test.Description)
+				if test.Valid {
+					t.Errorf("%s: %s: treating error as invalid: %v", c.Description, test.Description, err)
+				}
+			} else {
+				if test.Valid && !node.Valid {
+					t.Fatalf("%s: %s: %+v", c.Description, test.Description, node)
+				}
+				if !test.Valid && node.Valid {
+					t.Fatalf("%s: %s", c.Description, test.Description)
+				}
 			}
 		}
 	}
@@ -91,9 +94,17 @@ func TestBoolean(t *testing.T) {
 }
 
 func TestRef(t *testing.T) {
-	// TODO: embed the meta-schema of draft 2019-09
-	test(t, "draft2019-09/ref.json", "remote ref, containing refs itself")
+	// FIXME: embed the meta-schema of draft 2019-09
+	test(t, "draft2019-09/ref.json",
+		"remote ref, containing refs itself",
+		"ref creates new scope when adjacent to keywords",
+	)
 }
+
+// FIXME: embed the meta-schema of draft 2019-09
+// func TestID(t *testing.T) {
+// 	test(t, "draft2019-09/id.json")
+// }
 
 func TestAnchor(t *testing.T) {
 	test(t, "draft2019-09/anchor.json")
@@ -245,4 +256,13 @@ func TestZeroTerminatedFloats(t *testing.T) {
 
 func TestRefOfUnknownKeyword(t *testing.T) {
 	test(t, "draft2019-09/optional/refOfUnknownKeyword.json")
+}
+
+// FIXME: multipleOf
+// func TestFloatOverflow(t *testing.T) {
+// 	test(t, "draft2019-09/optional/float-overflow.json")
+// }
+
+func TestNonBMPRegex(t *testing.T) {
+	test(t, "draft2019-09/optional/non-bmp-regex.json")
 }
