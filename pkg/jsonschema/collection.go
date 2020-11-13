@@ -2,6 +2,7 @@ package jsonschema
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/url"
 	"strconv"
@@ -20,6 +21,11 @@ var ErrFragmentInId = errors.New("no fragment is allowed in $id")
 
 // ErrNotASchema occurs when the retrieved schema is not an object or boolean.
 var ErrNotASchema = errors.New("not a schema")
+
+// ErrMetaschemaInSubschema occurs when $schema appears in a subschema.
+var ErrMetaschemaInSubschema = errors.New("$schema in not allowed in subschema")
+
+const MetaschemaURI = "https://json-schema.org/draft/2019-09/schema"
 
 // Collection is a collection of schemas that can reference each other.
 type Collection struct {
@@ -121,6 +127,17 @@ func (c *Collection) GetSchema(u string) (schemaPtr *JSON, err error) {
 func (c *Collection) buildIndex(schema JSON, currentBaseURL url.URL, ptr jsonpointer.T) (result JSON, err error) {
 	switch s := schema.JSONValue.(type) {
 	case map[string]JSON:
+		if metaSchema, ok := s["$schema"].JSONValue.(string); ok {
+			if len(ptr) > 0 {
+				err = ErrMetaschemaInSubschema
+				return
+			}
+			if metaSchema != MetaschemaURI {
+				err = fmt.Errorf("unsupported $schema: %v", metaSchema)
+				return
+			}
+		}
+
 		if id, ok := s["$id"].JSONValue.(string); ok {
 			var u *url.URL
 			u, err = currentBaseURL.Parse(id)

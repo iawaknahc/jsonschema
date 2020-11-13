@@ -48,7 +48,6 @@ func (c ApplicationContext) CompilePattern(pattern string) (*regexp.Regexp, erro
 var handledKeywords map[string]struct{} = map[string]struct{}{
 	"$id":     {},
 	"$anchor": {},
-	// TODO: Handle $schema
 	"$schema": {},
 	// TODO: Handle $vocabulary
 	"$vocabulary": {},
