@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"sort"
 
-	"github.com/cockroachdb/apd"
+	"github.com/cockroachdb/apd/v2"
 )
 
 type Type struct {
