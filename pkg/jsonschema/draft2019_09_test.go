@@ -100,6 +100,11 @@ func TestRef(t *testing.T) {
 	)
 }
 
+// FIXME: Use refRemote.json
+// func TestRefRemote(t *testing.T) {
+// 	test(t, "draft2019-09/refRemote.json")
+// }
+
 func TestID(t *testing.T) {
 	test(t, "draft2019-09/id.json")
 }
@@ -220,10 +225,6 @@ func TestFormat(t *testing.T) {
 	test(t, "draft2019-09/format.json")
 }
 
-func TestFormatIPv4(t *testing.T) {
-	test(t, "draft2019-09/optional/format/ipv4.json")
-}
-
 func TestAllOf(t *testing.T) {
 	test(t, "draft2019-09/allOf.json")
 }
@@ -252,6 +253,10 @@ func TestDefault(t *testing.T) {
 	test(t, "draft2019-09/default.json")
 }
 
+func TestDefs(t *testing.T) {
+	test(t, "draft2019-09/defs.json")
+}
+
 func TestBignum(t *testing.T) {
 	test(t, "draft2019-09/optional/bignum.json")
 }
@@ -264,6 +269,16 @@ func TestRefOfUnknownKeyword(t *testing.T) {
 	test(t, "draft2019-09/optional/refOfUnknownKeyword.json")
 }
 
+// FIXME: content.json
+// func TestContent(t *testing.T) {
+// 	test(t, "draft2019-09/optional/content.json")
+// }
+
+// FIXME: ecmascript-regex.json
+// func TestECMAScriptRegex(t *testing.T) {
+// 	test(t, "draft2019-09/optional/ecmascript-regex.json")
+// }
+
 // FIXME: multipleOf
 // func TestFloatOverflow(t *testing.T) {
 // 	test(t, "draft2019-09/optional/float-overflow.json")
@@ -271,4 +286,8 @@ func TestRefOfUnknownKeyword(t *testing.T) {
 
 func TestNonBMPRegex(t *testing.T) {
 	test(t, "draft2019-09/optional/non-bmp-regex.json")
+}
+
+func TestFormatIPv4(t *testing.T) {
+	test(t, "draft2019-09/optional/format/ipv4.json")
 }
