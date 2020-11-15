@@ -52,6 +52,8 @@ var handledKeywords map[string]struct{} = map[string]struct{}{
 	// TODO: Handle $vocabulary
 	"$vocabulary":      {},
 	"$recursiveAnchor": {},
+	"minContains":      {},
+	"maxContains":      {},
 }
 
 func (c ApplicationContext) Apply(input Node) (*Node, error) {

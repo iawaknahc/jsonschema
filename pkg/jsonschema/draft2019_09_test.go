@@ -132,6 +132,14 @@ func TestContains(t *testing.T) {
 	test(t, "draft2019-09/contains.json")
 }
 
+func TestMinContains(t *testing.T) {
+	test(t, "draft2019-09/minContains.json")
+}
+
+func TestMaxContains(t *testing.T) {
+	test(t, "draft2019-09/maxContains.json")
+}
+
 func TestUniqueItems(t *testing.T) {
 	test(t, "draft2019-09/uniqueItems.json")
 }
