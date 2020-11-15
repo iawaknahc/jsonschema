@@ -29,7 +29,7 @@ func (s *Scope) Descend(t string, schema JSON) *Scope {
 	}
 }
 
-func (s *Scope) LexicalRef(location Location, schema JSON) *Scope {
+func (s *Scope) Ref(location Location, schema JSON) *Scope {
 	return &Scope{
 		Parent:          s,
 		LexicalLocation: location,

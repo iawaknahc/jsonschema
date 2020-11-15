@@ -12,15 +12,15 @@ This effects the keywords `patternProperties` and `pattern`.
 
 # Keyword Support
 
-- [ ] $schema
+- [x] $schema
 - [ ] $vocabulary
 - [x] $id
 - [x] $anchor
 - [x] $ref
 - [x] $defs
 - [x] $comment
-- [ ] $recursiveRef
-- [ ] $recursiveAnchor
+- [x] $recursiveRef
+- [x] $recursiveAnchor
 - [x] allOf
 - [x] anyOf
 - [x] oneOf

@@ -16,6 +16,7 @@ type Vocabulary struct {
 
 var DefaultVocabulary = Vocabulary{
 	Keywords: []Keyword{
+		RecursiveRef{},
 		Ref{},
 		// Independent keywords
 		// Their order is unimportant.

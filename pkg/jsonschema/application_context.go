@@ -50,7 +50,8 @@ var handledKeywords map[string]struct{} = map[string]struct{}{
 	"$anchor": {},
 	"$schema": {},
 	// TODO: Handle $vocabulary
-	"$vocabulary": {},
+	"$vocabulary":      {},
+	"$recursiveAnchor": {},
 }
 
 func (c ApplicationContext) Apply(input Node) (*Node, error) {

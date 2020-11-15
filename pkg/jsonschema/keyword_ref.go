@@ -33,7 +33,7 @@ func (_ Ref) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 		Parent:           input.Parent,
 		Instance:         input.Instance,
 		InstanceLocation: input.InstanceLocation,
-		Scope: input.Scope.LexicalRef(Location{
+		Scope: input.Scope.Ref(Location{
 			BaseURI:     referencedSchema.BaseURI,
 			JSONPointer: referencedSchema.CanonicalLocation,
 		}, *referencedSchema),

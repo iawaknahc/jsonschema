@@ -94,17 +94,15 @@ func TestBoolean(t *testing.T) {
 }
 
 func TestRef(t *testing.T) {
-	// FIXME: embed the meta-schema of draft 2019-09
+	// FIXME: https://github.com/json-schema-org/JSON-Schema-Test-Suite/pull/327
 	test(t, "draft2019-09/ref.json",
-		"remote ref, containing refs itself",
 		"ref creates new scope when adjacent to keywords",
 	)
 }
 
-// FIXME: embed the meta-schema of draft 2019-09
-// func TestID(t *testing.T) {
-// 	test(t, "draft2019-09/id.json")
-// }
+func TestID(t *testing.T) {
+	test(t, "draft2019-09/id.json")
+}
 
 func TestAnchor(t *testing.T) {
 	test(t, "draft2019-09/anchor.json")
