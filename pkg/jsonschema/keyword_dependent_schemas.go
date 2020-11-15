@@ -14,20 +14,18 @@ func (_ DependentSchemas) Apply(ctx ApplicationContext, input Node) (*Node, erro
 		return &input, nil
 	}
 
-	for name, schema := range input.Schema.JSONValue.(map[string]JSON) {
+	for name, schema := range input.Scope.Schema.JSONValue.(map[string]JSON) {
 		_, ok := obj[name]
 		if !ok {
 			continue
 		}
 
 		childInput := Node{
-			Valid:                   true,
-			Parent:                  &input,
-			Instance:                input.Instance,
-			InstanceLocation:        input.InstanceLocation,
-			Schema:                  schema,
-			KeywordLocation:         input.KeywordLocation.AddReferenceToken(name),
-			AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(name),
+			Valid:            true,
+			Parent:           &input,
+			Instance:         input.Instance,
+			InstanceLocation: input.InstanceLocation,
+			Scope:            input.Scope.Descend(name, schema),
 		}
 
 		child, err := ctx.Apply(childInput)

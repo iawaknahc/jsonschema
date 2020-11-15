@@ -17,7 +17,7 @@ func (_ UniqueItems) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	if !ok {
 		return &input, nil
 	}
-	unique := input.Schema.JSONValue.(bool)
+	unique := input.Scope.Schema.JSONValue.(bool)
 	if !unique {
 		return &input, nil
 	}

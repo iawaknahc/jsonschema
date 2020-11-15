@@ -55,13 +55,13 @@ var handledKeywords map[string]struct{} = map[string]struct{}{
 
 func (c ApplicationContext) Apply(input Node) (*Node, error) {
 	// Handle boolean schema
-	if b, ok := input.Schema.JSONValue.(bool); ok {
+	if b, ok := input.Scope.Schema.JSONValue.(bool); ok {
 		input.Valid = b
 		return &input, nil
 	}
 
 	// Handle each keywords
-	if schema, ok := input.Schema.JSONValue.(map[string]JSON); ok {
+	if schema, ok := input.Scope.Schema.JSONValue.(map[string]JSON); ok {
 		// We need to apply the keywords with the order in the vocabulary.
 		// We also need to ignore any unknown keywords.
 		keywords := map[string]struct{}{}
@@ -84,14 +84,12 @@ func (c ApplicationContext) Apply(input Node) (*Node, error) {
 			// Remove processed keywords.
 			delete(keywords, k)
 			childInput := Node{
-				Valid:                   true,
-				Parent:                  &input,
-				Instance:                input.Instance,
-				InstanceLocation:        input.InstanceLocation,
-				Schema:                  schema[k],
-				Keyword:                 k,
-				KeywordLocation:         input.KeywordLocation.AddReferenceToken(k),
-				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(k),
+				Valid:            true,
+				Parent:           &input,
+				Instance:         input.Instance,
+				InstanceLocation: input.InstanceLocation,
+				Keyword:          k,
+				Scope:            input.Scope.Descend(k, schema[k]),
 			}
 			child, err := keyword.Apply(c, childInput)
 			if err != nil {
@@ -107,14 +105,12 @@ func (c ApplicationContext) Apply(input Node) (*Node, error) {
 		// Ignore them by assuming valid.
 		for keyword := range keywords {
 			child := Node{
-				Valid:                   true,
-				Parent:                  &input,
-				Instance:                input.Instance,
-				InstanceLocation:        input.InstanceLocation,
-				Schema:                  schema[keyword],
-				Keyword:                 keyword,
-				KeywordLocation:         input.KeywordLocation.AddReferenceToken(keyword),
-				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(keyword),
+				Valid:            true,
+				Parent:           &input,
+				Instance:         input.Instance,
+				InstanceLocation: input.InstanceLocation,
+				Keyword:          keyword,
+				Scope:            input.Scope.Descend(keyword, schema[keyword]),
 			}
 			input.Children = append(input.Children, child)
 		}

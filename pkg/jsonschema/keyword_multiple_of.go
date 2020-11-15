@@ -25,7 +25,7 @@ func (_ MultipleOf) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	divisor, err := input.Schema.JSONValue.(json.Number).Float64()
+	divisor, err := input.Scope.Schema.JSONValue.(json.Number).Float64()
 	if err != nil {
 		return nil, err
 	}

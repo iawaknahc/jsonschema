@@ -16,7 +16,7 @@ func (_ Const) Keyword() string {
 }
 
 func (_ Const) Apply(ctx ApplicationContext, input Node) (*Node, error) {
-	constValue := ToFloat64(UnwrapJSON(input.Schema))
+	constValue := ToFloat64(UnwrapJSON(input.Scope.Schema))
 	value := ToFloat64(input.Instance)
 
 	if !reflect.DeepEqual(value, constValue) {

@@ -263,11 +263,6 @@ func (c *Collection) Apply(u string, r io.Reader) (node *Node, err error) {
 		return
 	}
 
-	location := Location{
-		BaseURI:     schema.BaseURI,
-		JSONPointer: schema.CanonicalLocation,
-	}
-
 	ctx := ApplicationContext{
 		Collection:   c,
 		Vocabulary:   DefaultVocabulary,
@@ -275,10 +270,12 @@ func (c *Collection) Apply(u string, r io.Reader) (node *Node, err error) {
 	}
 
 	input := Node{
-		Valid:                   true,
-		Schema:                  *schema,
-		Instance:                instance,
-		AbsoluteKeywordLocation: location,
+		Valid:    true,
+		Instance: instance,
+		Scope: NewRootScope(Location{
+			BaseURI:     schema.BaseURI,
+			JSONPointer: schema.CanonicalLocation,
+		}, *schema),
 	}
 
 	return ctx.Apply(input)

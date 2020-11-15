@@ -21,7 +21,7 @@ func (_ MinItems) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	if !ok {
 		return &input, nil
 	}
-	minItems := input.Schema.JSONValue.(json.Number)
+	minItems := input.Scope.Schema.JSONValue.(json.Number)
 	arrLen := len(arr)
 	i, err := strconv.Atoi(string(minItems))
 	if err != nil {

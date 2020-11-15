@@ -23,7 +23,7 @@ func (_ Required) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	}
 
 	var expected []string
-	for _, name := range UnwrapJSON(input.Schema).([]interface{}) {
+	for _, name := range UnwrapJSON(input.Scope.Schema).([]interface{}) {
 		expected = append(expected, name.(string))
 	}
 

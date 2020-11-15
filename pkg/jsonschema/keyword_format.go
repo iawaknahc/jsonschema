@@ -9,7 +9,7 @@ func (_ Format) Keyword() string {
 }
 
 func (_ Format) Apply(ctx ApplicationContext, input Node) (*Node, error) {
-	format := input.Schema.JSONValue.(string)
+	format := input.Scope.Schema.JSONValue.(string)
 	input.Annotation = format
 
 	checker, ok := ctx.Collection.FormatChecker[format]

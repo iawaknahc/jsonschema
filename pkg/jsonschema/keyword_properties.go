@@ -31,17 +31,15 @@ func (_ Properties) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	}
 
 	propertiesName := map[string]struct{}{}
-	for name, schema := range input.Schema.JSONValue.(map[string]JSON) {
+	for name, schema := range input.Scope.Schema.JSONValue.(map[string]JSON) {
 		if val, ok := obj[name]; ok {
 			propertiesName[name] = struct{}{}
 			childInput := Node{
-				Valid:                   true,
-				Parent:                  &input,
-				Instance:                val,
-				InstanceLocation:        input.InstanceLocation.AddReferenceToken(name),
-				Schema:                  schema,
-				KeywordLocation:         input.KeywordLocation.AddReferenceToken(name),
-				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(name),
+				Valid:            true,
+				Parent:           &input,
+				Instance:         val,
+				InstanceLocation: input.InstanceLocation.AddReferenceToken(name),
+				Scope:            input.Scope.Descend(name, schema),
 			}
 			child, err := ctx.Apply(childInput)
 			if err != nil {

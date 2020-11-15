@@ -15,13 +15,11 @@ func (_ PropertyNames) Apply(ctx ApplicationContext, input Node) (*Node, error) 
 	}
 	for name := range obj {
 		childInput := Node{
-			Valid:                   true,
-			Parent:                  &input,
-			Instance:                name,
-			InstanceLocation:        input.InstanceLocation.AddReferenceToken(name),
-			Schema:                  input.Schema,
-			KeywordLocation:         input.KeywordLocation,
-			AbsoluteKeywordLocation: input.AbsoluteKeywordLocation,
+			Valid:            true,
+			Parent:           &input,
+			Instance:         name,
+			InstanceLocation: input.InstanceLocation.AddReferenceToken(name),
+			Scope:            input.Scope,
 		}
 		child, err := ctx.Apply(childInput)
 		if err != nil {

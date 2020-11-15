@@ -9,8 +9,8 @@ func (_ Ref) Keyword() string {
 }
 
 func (_ Ref) Apply(ctx ApplicationContext, input Node) (*Node, error) {
-	ref := input.Schema.JSONValue.(string)
-	u, err := input.Parent.Schema.BaseURI.Parse(ref)
+	ref := input.Scope.Schema.JSONValue.(string)
+	u, err := input.Parent.Scope.Schema.BaseURI.Parse(ref)
 	if err != nil {
 		return nil, err
 	}
@@ -28,18 +28,15 @@ func (_ Ref) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	// 	}
 	// }
 	// c.ReferencedLocation = append(c.ReferencedLocation, location)
-	location := Location{
-		BaseURI:     referencedSchema.BaseURI,
-		JSONPointer: referencedSchema.CanonicalLocation,
-	}
 	childInput := Node{
-		Valid:                   true,
-		Parent:                  input.Parent,
-		Instance:                input.Instance,
-		InstanceLocation:        input.InstanceLocation,
-		Schema:                  *referencedSchema,
-		KeywordLocation:         input.KeywordLocation,
-		AbsoluteKeywordLocation: location,
+		Valid:            true,
+		Parent:           input.Parent,
+		Instance:         input.Instance,
+		InstanceLocation: input.InstanceLocation,
+		Scope: input.Scope.LexicalRef(Location{
+			BaseURI:     referencedSchema.BaseURI,
+			JSONPointer: referencedSchema.CanonicalLocation,
+		}, *referencedSchema),
 	}
 	child, err := ctx.Apply(childInput)
 	if err != nil {

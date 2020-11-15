@@ -20,7 +20,7 @@ func (_ Maximum) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	if !ok {
 		return &input, nil
 	}
-	limit := input.Schema.JSONValue.(json.Number)
+	limit := input.Scope.Schema.JSONValue.(json.Number)
 	numf, err := num.Float64()
 	if err != nil {
 		return nil, err

@@ -16,7 +16,7 @@ func (_ Enum) Keyword() string {
 }
 
 func (_ Enum) Apply(ctx ApplicationContext, input Node) (*Node, error) {
-	enumValues := ToFloat64(UnwrapJSON(input.Schema)).([]interface{})
+	enumValues := ToFloat64(UnwrapJSON(input.Scope.Schema)).([]interface{})
 	value := ToFloat64(input.Instance)
 
 	eq := false

@@ -21,7 +21,7 @@ func (_ MaxItems) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	if !ok {
 		return &input, nil
 	}
-	maxItems := input.Schema.JSONValue.(json.Number)
+	maxItems := input.Scope.Schema.JSONValue.(json.Number)
 	arrLen := len(arr)
 	i, err := strconv.Atoi(string(maxItems))
 	if err != nil {

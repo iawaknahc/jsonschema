@@ -31,7 +31,7 @@ func (_ PatternProperties) Apply(ctx ApplicationContext, input Node) (*Node, err
 	}
 
 	patternPropertiesName := map[string]struct{}{}
-	for pattern, schema := range input.Schema.JSONValue.(map[string]JSON) {
+	for pattern, schema := range input.Scope.Schema.JSONValue.(map[string]JSON) {
 		re, err := ctx.CompilePattern(pattern)
 		if err != nil {
 			return nil, err
@@ -40,13 +40,11 @@ func (_ PatternProperties) Apply(ctx ApplicationContext, input Node) (*Node, err
 			if re.MatchString(name) {
 				patternPropertiesName[name] = struct{}{}
 				childInput := Node{
-					Valid:                   true,
-					Parent:                  &input,
-					Instance:                val,
-					InstanceLocation:        input.InstanceLocation.AddReferenceToken(name),
-					Schema:                  schema,
-					KeywordLocation:         input.KeywordLocation.AddReferenceToken(pattern),
-					AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(pattern),
+					Valid:            true,
+					Parent:           &input,
+					Instance:         val,
+					InstanceLocation: input.InstanceLocation.AddReferenceToken(name),
+					Scope:            input.Scope.Descend(pattern, schema),
 				}
 				child, err := ctx.Apply(childInput)
 				if err != nil {

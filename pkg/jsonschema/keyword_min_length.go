@@ -22,7 +22,7 @@ func (_ MinLength) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	if !ok {
 		return &input, nil
 	}
-	minItems := input.Schema.JSONValue.(json.Number)
+	minItems := input.Scope.Schema.JSONValue.(json.Number)
 	length := utf8.RuneCountInString(str)
 	i, err := strconv.Atoi(string(minItems))
 	if err != nil {

@@ -21,7 +21,7 @@ func (_ Type) Keyword() string {
 func (_ Type) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	// Prepare expected.
 	var expected []string
-	switch a := UnwrapJSON(input.Schema).(type) {
+	switch a := UnwrapJSON(input.Scope.Schema).(type) {
 	case string:
 		expected = []string{a}
 	case []interface{}:

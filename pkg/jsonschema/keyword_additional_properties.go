@@ -50,13 +50,11 @@ func (_ AdditionalProperties) Apply(ctx ApplicationContext, input Node) (*Node, 
 		}
 		additionalPropertiesName[name] = struct{}{}
 		childInput := Node{
-			Valid:                   true,
-			Parent:                  &input,
-			Instance:                val,
-			InstanceLocation:        input.InstanceLocation.AddReferenceToken(name),
-			Schema:                  input.Schema,
-			KeywordLocation:         input.KeywordLocation,
-			AbsoluteKeywordLocation: input.AbsoluteKeywordLocation,
+			Valid:            true,
+			Parent:           &input,
+			Instance:         val,
+			InstanceLocation: input.InstanceLocation.AddReferenceToken(name),
+			Scope:            input.Scope,
 		}
 		child, err := ctx.Apply(childInput)
 		if err != nil {

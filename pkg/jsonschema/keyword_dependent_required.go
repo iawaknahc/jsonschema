@@ -33,7 +33,7 @@ func (_ DependentRequired) Apply(ctx ApplicationContext, input Node) (*Node, err
 	// It is very useful if this node is testing data.
 	sort.Strings(actual)
 
-	for name, schema := range input.Schema.JSONValue.(map[string]JSON) {
+	for name, schema := range input.Scope.Schema.JSONValue.(map[string]JSON) {
 		_, ok := obj[name]
 		if !ok {
 			continue

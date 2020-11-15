@@ -16,7 +16,7 @@ func (_ Pattern) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	if !ok {
 		return &input, nil
 	}
-	pattern := input.Schema.JSONValue.(string)
+	pattern := input.Scope.Schema.JSONValue.(string)
 	re, err := ctx.CompilePattern(pattern)
 	if err != nil {
 		return nil, err

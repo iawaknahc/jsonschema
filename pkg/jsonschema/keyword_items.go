@@ -40,19 +40,17 @@ func (_ Items) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	}
 
 	largestIndex := -1
-	switch schema := input.Schema.JSONValue.(type) {
+	switch schema := input.Scope.Schema.JSONValue.(type) {
 	case []JSON:
 		for i := 0; i < len(arr) && i < len(schema); i++ {
 			largestIndex = i
 			item := arr[i]
 			childInput := Node{
-				Valid:                   true,
-				Parent:                  &input,
-				Instance:                item,
-				InstanceLocation:        input.InstanceLocation.AddReferenceToken(strconv.Itoa(i)),
-				Schema:                  schema[i],
-				KeywordLocation:         input.KeywordLocation.AddReferenceToken(strconv.Itoa(i)),
-				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(strconv.Itoa(i)),
+				Valid:            true,
+				Parent:           &input,
+				Instance:         item,
+				InstanceLocation: input.InstanceLocation.AddReferenceToken(strconv.Itoa(i)),
+				Scope:            input.Scope.Descend(strconv.Itoa(i), schema[i]),
 			}
 			child, err := ctx.Apply(childInput)
 			if err != nil {
@@ -67,13 +65,11 @@ func (_ Items) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 		for i, item := range arr {
 			largestIndex = i
 			childInput := Node{
-				Valid:                   true,
-				Parent:                  &input,
-				Instance:                item,
-				InstanceLocation:        input.InstanceLocation.AddReferenceToken(strconv.Itoa(i)),
-				Schema:                  input.Schema,
-				KeywordLocation:         input.KeywordLocation,
-				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation,
+				Valid:            true,
+				Parent:           &input,
+				Instance:         item,
+				InstanceLocation: input.InstanceLocation.AddReferenceToken(strconv.Itoa(i)),
+				Scope:            input.Scope,
 			}
 			child, err := ctx.Apply(childInput)
 			if err != nil {

@@ -41,13 +41,11 @@ func (_ AdditionalItems) Apply(ctx ApplicationContext, input Node) (*Node, error
 			}
 			applied = true
 			childInput := Node{
-				Valid:                   true,
-				Parent:                  &input,
-				Instance:                item,
-				InstanceLocation:        input.InstanceLocation.AddReferenceToken(strconv.Itoa(i)),
-				Schema:                  input.Schema,
-				KeywordLocation:         input.KeywordLocation,
-				AbsoluteKeywordLocation: input.AbsoluteKeywordLocation,
+				Valid:            true,
+				Parent:           &input,
+				Instance:         item,
+				InstanceLocation: input.InstanceLocation.AddReferenceToken(strconv.Itoa(i)),
+				Scope:            input.Scope,
 			}
 			child, err := ctx.Apply(childInput)
 			if err != nil {

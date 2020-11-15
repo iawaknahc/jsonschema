@@ -14,15 +14,13 @@ func (_ AllOf) Keyword() string {
 
 func (_ AllOf) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 	var numInvalid int
-	for i, subschema := range input.Schema.JSONValue.([]JSON) {
+	for i, subschema := range input.Scope.Schema.JSONValue.([]JSON) {
 		childInput := Node{
-			Valid:                   true,
-			Parent:                  &input,
-			Instance:                input.Instance,
-			InstanceLocation:        input.InstanceLocation,
-			Schema:                  subschema,
-			KeywordLocation:         input.KeywordLocation.AddReferenceToken(strconv.Itoa(i)),
-			AbsoluteKeywordLocation: input.AbsoluteKeywordLocation.AddReferenceToken(strconv.Itoa(i)),
+			Valid:            true,
+			Parent:           &input,
+			Instance:         input.Instance,
+			InstanceLocation: input.InstanceLocation,
+			Scope:            input.Scope.Descend(strconv.Itoa(i), subschema),
 		}
 		child, err := ctx.Apply(childInput)
 		if err != nil {

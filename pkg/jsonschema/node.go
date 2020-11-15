@@ -6,18 +6,16 @@ import (
 
 type Node struct {
 	// Standard fields
-	Valid                   bool
-	InstanceLocation        jsonpointer.T
-	KeywordLocation         jsonpointer.T
-	AbsoluteKeywordLocation Location
-	Annotation              interface{}
-	Children                []Node
+	Valid            bool
+	InstanceLocation jsonpointer.T
+	Annotation       interface{}
+	Children         []Node
 	// Extra fields
 	Keyword string
 	Info    interface{}
 	// Runtime fields
+	Scope    *Scope
 	Parent   *Node
-	Schema   JSON
 	Instance interface{}
 }
 
@@ -41,8 +39,8 @@ func (n *Node) Verbose() (out OutputNode) {
 	out = OutputNode{
 		Valid:                   n.Valid,
 		InstanceLocation:        n.InstanceLocation.Fragment(),
-		KeywordLocation:         n.KeywordLocation.Fragment(),
-		AbsoluteKeywordLocation: n.AbsoluteKeywordLocation.String(),
+		KeywordLocation:         n.Scope.DynamicLocation.Fragment(),
+		AbsoluteKeywordLocation: n.Scope.LexicalLocation.String(),
 		Annotation:              n.Annotation,
 		Keyword:                 n.Keyword,
 		Info:                    n.Info,

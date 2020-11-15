@@ -21,7 +21,7 @@ func (_ MinProperties) Apply(ctx ApplicationContext, input Node) (*Node, error) 
 	if !ok {
 		return &input, nil
 	}
-	limit := input.Schema.JSONValue.(json.Number)
+	limit := input.Scope.Schema.JSONValue.(json.Number)
 	arrLen := len(obj)
 	i, err := strconv.Atoi(string(limit))
 	if err != nil {
