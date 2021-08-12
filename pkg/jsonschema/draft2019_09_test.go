@@ -67,6 +67,17 @@ func test(t *testing.T, p string, skip ...string) {
 		}
 
 		for _, test := range c.Tests {
+			shouldSkip := false
+			for _, s := range skip {
+				if test.Description == s {
+					shouldSkip = true
+					break
+				}
+			}
+			if shouldSkip {
+				continue
+			}
+
 			dataBytes, err := json.Marshal(test.Data)
 			if err != nil {
 				t.Fatalf("failed to marshal data: %v", err)
