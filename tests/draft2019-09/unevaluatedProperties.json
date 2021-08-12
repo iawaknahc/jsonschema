@@ -492,6 +492,112 @@
         ]
     },
     {
+        "description": "unevaluatedProperties with if/then/else, then not defined",
+        "schema": {
+            "type": "object",
+            "if": {
+                "properties": {
+                    "foo": { "const": "then" }
+                },
+                "required": ["foo"]
+            },
+            "else": {
+                "properties": {
+                    "baz": { "type": "string" }
+                },
+                "required": ["baz"]
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "when if is true and has no unevaluated properties",
+                "data": {
+                    "foo": "then",
+                    "bar": "bar"
+                },
+                "valid": false
+            },
+            {
+                "description": "when if is true and has unevaluated properties",
+                "data": {
+                    "foo": "then",
+                    "bar": "bar",
+                    "baz": "baz"
+                },
+                "valid": false
+            },
+            {
+                "description": "when if is false and has no unevaluated properties",
+                "data": {
+                    "baz": "baz"
+                },
+                "valid": true
+            },
+            {
+                "description": "when if is false and has unevaluated properties",
+                "data": {
+                    "foo": "else",
+                    "baz": "baz"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "unevaluatedProperties with if/then/else, else not defined",
+        "schema": {
+            "type": "object",
+            "if": {
+                "properties": {
+                    "foo": { "const": "then" }
+                },
+                "required": ["foo"]
+            },
+            "then": {
+                "properties": {
+                    "bar": { "type": "string" }
+                },
+                "required": ["bar"]
+            },
+            "unevaluatedProperties": false
+        },
+        "tests": [
+            {
+                "description": "when if is true and has no unevaluated properties",
+                "data": {
+                    "foo": "then",
+                    "bar": "bar"
+                },
+                "valid": true
+            },
+            {
+                "description": "when if is true and has unevaluated properties",
+                "data": {
+                    "foo": "then",
+                    "bar": "bar",
+                    "baz": "baz"
+                },
+                "valid": false
+            },
+            {
+                "description": "when if is false and has no unevaluated properties",
+                "data": {
+                    "baz": "baz"
+                },
+                "valid": false
+            },
+            {
+                "description": "when if is false and has unevaluated properties",
+                "data": {
+                    "foo": "else",
+                    "baz": "baz"
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
         "description": "unevaluatedProperties with dependentSchemas",
         "schema": {
             "type": "object",
@@ -807,6 +913,148 @@
                     "bar": "bar"
                 },
                 "valid": false
+            }
+        ]
+    },
+    {
+        "description": "property is evaluated in an uncle schema to unevaluatedProperties",
+        "comment": "see https://stackoverflow.com/questions/66936884/deeply-nested-unevaluatedproperties-and-their-expectations",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "foo": {
+                    "type": "object",
+                    "properties": {
+                        "bar": {
+                            "type": "string"
+                        }
+                    },
+                    "unevaluatedProperties": false
+                  }
+            },
+            "anyOf": [
+                {
+                    "properties": {
+                        "foo": {
+                            "properties": {
+                                "faz": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "no extra properties",
+                "data": {
+                    "foo": {
+                        "bar": "test"
+                    }
+                },
+                "valid": true
+            },
+            {
+                "description": "uncle keyword evaluation is not significant",
+                "data": {
+                    "foo": {
+                        "bar": "test",
+                        "faz": "test"
+                    }
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "in-place applicator siblings, allOf has unevaluated",
+        "schema": {
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "foo": true
+                    },
+                    "unevaluatedProperties": false
+                }
+            ],
+            "anyOf": [
+                {
+                    "properties": {
+                        "bar": true
+                    }
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "base case: both properties present",
+                "data": {
+                    "foo": 1,
+                    "bar": 1
+                },
+                "valid": false
+            },
+            {
+                "description": "in place applicator siblings, bar is missing",
+                "data": {
+                    "foo": 1
+                },
+                "valid": true
+            },
+            {
+                "description": "in place applicator siblings, foo is missing",
+                "data": {
+                    "bar": 1
+                },
+                "valid": false
+            }
+        ]
+    },
+    {
+        "description": "in-place applicator siblings, anyOf has unevaluated",
+        "schema": {
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "foo": true
+                    }
+                }
+            ],
+            "anyOf": [
+                {
+                    "properties": {
+                        "bar": true
+                    },
+                    "unevaluatedProperties": false
+                }
+            ]
+        },
+        "tests": [
+            {
+                "description": "base case: both properties present",
+                "data": {
+                    "foo": 1,
+                    "bar": 1
+                },
+                "valid": false
+            },
+            {
+                "description": "in place applicator siblings, bar is missing",
+                "data": {
+                    "foo": 1
+                },
+                "valid": false
+            },
+            {
+                "description": "in place applicator siblings, foo is missing",
+                "data": {
+                    "bar": 1
+                },
+                "valid": true
             }
         ]
     }
