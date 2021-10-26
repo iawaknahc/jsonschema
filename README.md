@@ -63,7 +63,7 @@ This effects the keywords `patternProperties` and `pattern`.
   - [ ] date
   - [ ] time
   - [ ] duration
-  - [ ] email
+  - [x] email
   - [ ] idn-email
   - [ ] hostname
   - [ ] idn-hostname

@@ -241,6 +241,7 @@ func TestPattern(t *testing.T) {
 func TestFormat(t *testing.T) {
 	test(t, "draft2019-09/format.json",
 		"invalid ipv4 string is only an annotation by default",
+		"invalid email string is only an annotation by default",
 	)
 }
 
@@ -309,6 +310,10 @@ func TestNonBMPRegex(t *testing.T) {
 
 func TestFormatIPv4(t *testing.T) {
 	test(t, "draft2019-09/optional/format/ipv4.json")
+}
+
+func TestFormatEmail(t *testing.T) {
+	test(t, "draft2019-09/optional/format/email.json")
 }
 
 func TestInfiniteLoopDetection(t *testing.T) {
