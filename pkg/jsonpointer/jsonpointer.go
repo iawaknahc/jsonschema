@@ -25,17 +25,7 @@ const (
 // A JSON pointer is a sequence of reference tokens.
 type T []string
 
-// Parse parses the input into T.
-// input can either in string representationn or URL fragment representation.
-func Parse(input string) (T, error) {
-	var err error
-	if strings.HasPrefix(input, "#") {
-		input, err = FragmentUnescape(input)
-		if err != nil {
-			return nil, err
-		}
-	}
-
+func ParseStringRepresentation(input string) (T, error) {
 	var output []string
 	var w *strings.Builder
 	state := stateSlash
@@ -82,6 +72,20 @@ func Parse(input string) (T, error) {
 	}
 
 	return T(output), nil
+}
+
+// Parse parses the input into T.
+// input can either in string representationn or URL fragment representation.
+func Parse(input string) (T, error) {
+	var err error
+	if strings.HasPrefix(input, "#") {
+		input, err = FragmentUnescape(input)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return ParseStringRepresentation(input)
 }
 
 // MustParse is a shorthand for creating literal value of T.
