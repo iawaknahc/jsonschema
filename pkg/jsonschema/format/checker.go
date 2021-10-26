@@ -5,6 +5,7 @@ type FormatChecker interface {
 }
 
 var DefaultChecker map[string]FormatChecker = map[string]FormatChecker{
-	"ipv4":  IPV4{},
-	"email": Email{},
+	"ipv4":         IPV4{},
+	"email":        Email{},
+	"json-pointer": JSONPointer{},
 }

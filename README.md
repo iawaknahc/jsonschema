@@ -75,7 +75,7 @@ This effects the keywords `patternProperties` and `pattern`.
   - [ ] iri-reference
   - [ ] uuid
   - [ ] uri-template
-  - [ ] json-pointer
+  - [x] json-pointer
   - [ ] relative-json-pointer
   - [ ] regex
 - [ ] title

@@ -242,6 +242,7 @@ func TestFormat(t *testing.T) {
 	test(t, "draft2019-09/format.json",
 		"invalid ipv4 string is only an annotation by default",
 		"invalid email string is only an annotation by default",
+		"invalid json-pointer string is only an annotation by default",
 	)
 }
 
@@ -314,6 +315,10 @@ func TestFormatIPv4(t *testing.T) {
 
 func TestFormatEmail(t *testing.T) {
 	test(t, "draft2019-09/optional/format/email.json")
+}
+
+func TestFormatJSONPointer(t *testing.T) {
+	test(t, "draft2019-09/optional/format/json-pointer.json")
 }
 
 func TestInfiniteLoopDetection(t *testing.T) {
