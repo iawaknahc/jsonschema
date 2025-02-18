@@ -2,6 +2,7 @@ package jsonschema
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -83,7 +84,8 @@ func test(t *testing.T, p string, skip ...string) {
 				t.Fatalf("failed to marshal data: %v", err)
 			}
 
-			node, err := collection.Apply(id, bytes.NewReader(dataBytes))
+			ctx := context.Background()
+			node, err := collection.Apply(ctx, id, bytes.NewReader(dataBytes))
 			if err != nil {
 				if test.Valid {
 					t.Errorf("%s: %s: treating error as invalid: %v", c.Description, test.Description, err)

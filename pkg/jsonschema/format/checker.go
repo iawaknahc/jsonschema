@@ -1,7 +1,9 @@
 package format
 
+import "context"
+
 type FormatChecker interface {
-	CheckFormat(value interface{}) error
+	CheckFormat(ctx context.Context, value interface{}) error
 }
 
 var DefaultChecker map[string]FormatChecker = map[string]FormatChecker{

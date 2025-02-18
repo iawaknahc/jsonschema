@@ -1,6 +1,7 @@
 package format
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/mail"
@@ -12,7 +13,7 @@ type Email struct{}
 
 var _ FormatChecker = Email{}
 
-func (Email) CheckFormat(value interface{}) error {
+func (Email) CheckFormat(ctx context.Context, value interface{}) error {
 	str, ok := value.(string)
 	if !ok {
 		return nil

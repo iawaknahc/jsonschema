@@ -17,7 +17,7 @@ func (_ Format) Apply(ctx ApplicationContext, input Node) (*Node, error) {
 		return &input, nil
 	}
 
-	err := checker.CheckFormat(input.Instance)
+	err := checker.CheckFormat(ctx.Context, input.Instance)
 	if err != nil {
 		input.Valid = false
 		input.Info = err
