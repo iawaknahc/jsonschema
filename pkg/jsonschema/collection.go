@@ -1,6 +1,7 @@
 package jsonschema
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -252,7 +253,7 @@ func (c *Collection) buildIndex(schema JSON, currentBaseURL url.URL, ptr jsonpoi
 }
 
 // Apply applies the schema referenced by u on r.
-func (c *Collection) Apply(u string, r io.Reader) (node *Node, err error) {
+func (c *Collection) Apply(ctx context.Context, u string, r io.Reader) (node *Node, err error) {
 	instance, err := DecodePlainJSON(r)
 	if err != nil {
 		return
@@ -263,7 +264,8 @@ func (c *Collection) Apply(u string, r io.Reader) (node *Node, err error) {
 		return
 	}
 
-	ctx := ApplicationContext{
+	appCtx := ApplicationContext{
+		Context:      ctx,
 		Collection:   c,
 		Vocabulary:   DefaultVocabulary,
 		PatternCache: &sync.Map{},
@@ -278,5 +280,5 @@ func (c *Collection) Apply(u string, r io.Reader) (node *Node, err error) {
 		}, *schema),
 	}
 
-	return ctx.Apply(input)
+	return appCtx.Apply(input)
 }

@@ -1,6 +1,7 @@
 package jsonschema
 
 import (
+	"context"
 	"regexp"
 	"strings"
 	"sync"
@@ -19,6 +20,7 @@ func (e ErrCircularReference) Error() string {
 }
 
 type ApplicationContext struct {
+	Context      context.Context
 	Collection   *Collection
 	Vocabulary   Vocabulary
 	PatternCache *sync.Map

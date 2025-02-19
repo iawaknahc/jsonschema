@@ -1,6 +1,7 @@
 package jsonschema
 
 import (
+	"context"
 	"encoding/json"
 	"os"
 	"strings"
@@ -108,7 +109,8 @@ func TestVerboseSimple(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to add schema: %v", err)
 	}
-	node, err := collection.Apply("https://example.com/polygon", strings.NewReader(instance))
+	ctx := context.Background()
+	node, err := collection.Apply(ctx, "https://example.com/polygon", strings.NewReader(instance))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -168,7 +170,8 @@ func TestVerbose(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to add schema: %v", err)
 	}
-	node, err := collection.Apply("https://example.com/polygon", strings.NewReader(instance))
+	ctx := context.Background()
+	node, err := collection.Apply(ctx, "https://example.com/polygon", strings.NewReader(instance))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

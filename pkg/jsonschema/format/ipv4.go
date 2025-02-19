@@ -1,6 +1,7 @@
 package format
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -13,7 +14,7 @@ type IPV4 struct{}
 
 var _ FormatChecker = IPV4{}
 
-func (_ IPV4) CheckFormat(value interface{}) error {
+func (_ IPV4) CheckFormat(ctx context.Context, value interface{}) error {
 	str, ok := value.(string)
 	if !ok {
 		return nil
